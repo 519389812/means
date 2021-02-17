@@ -15,7 +15,6 @@ from means.settings import online
 
 
 fake = faker.Faker()
-image_dir = "predict/static/predict/images/"
 
 
 # lover_words_module = hub.Module(name="ernie_gen_lover_words")
@@ -49,13 +48,14 @@ def predict_words_inner(request):
 # ocr = hub.Module(name="chinese_ocr_db_crnn_server")
 if online:
     ocr = PaddleOCR(
-        det_model_dir='predict/static/predict/models/ch_ppocr_server_v1.1_det_infer',
-        rec_model_dir='predict/static/predict/models/ch_ppocr_server_v1.1_rec_infer',
+        det_model_dir='/home/means/means/predict/static/predict/models/ch_ppocr_mobile_v1.1_det_infer',
+        rec_model_dir='/home/means/means/predict/static/predict/models/ch_ppocr_mobile_v1.1_rec_infer',
         # rec_char_dict_path='',
-        cls_model_dir='predict/static/predict/models/ch_ppocr_mobile_v1.1_cls_infer',
+        cls_model_dir='/home/means/means/predict/static/predict/models/ch_ppocr_mobile_v1.1_cls_infer',
         use_angle_cls=True,
         lang="ch",  # 中英文、英文、法语、德语、韩语、日语lang参数依次为`ch`, `en`, `french`, `german`, `korean`, `japan`
     )
+    image_dir = "/home/means/means/predict/static/predict/images/"
 else:
     ocr = PaddleOCR(
         det_model_dir='predict/static/predict/models/ch_ppocr_server_v2.0_det_infer',
@@ -65,6 +65,7 @@ else:
         use_angle_cls=True,
         lang="ch",  # 中英文、英文、法语、德语、韩语、日语lang参数依次为`ch`, `en`, `french`, `german`, `korean`, `japan`
     )
+    image_dir = "predict/static/predict/images/"
 
 
 def predict_words_inner_atp_image(request):
