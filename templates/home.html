@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    {% include "head.html" %}
+    <title>means</title>
+</head>
+
+<body>
+<!-- Navigation -->
+{% include "navigation.html" %}
+
+<!-- Header -->
+
+<!-- Page Content -->
+<div class="container">
+
+    <h1 class="my-4">欢迎访问</h1>
+
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="list-group" id="list-tab" role="tablist">
+<!--            <a class="list-group-item list-group-item-action" id="list-{ your id }-list" data-toggle="list" href="#list-{ your id }" role="tab" aria-controls="{ your id }">{ name }</a>-->
+                <a class="list-group-item list-group-item-action active" id="list-home-list" data-toggle="list"
+                   href="#list-home" role="tab" aria-controls="home">自有工具</a>
+                {% for key, value in content.items %}
+                    <a class="list-group-item list-group-item-action" id="list-{{ key }}-list" data-toggle="list" href="#list-{{ key }}" role="tab" aria-controls="{{ key }}">{{ key }}</a>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-lg-9 mb-4">
+            <div class="tab-content" id="nav-tabContent">
+<!--            <div class="tab-pane fade show" id="list-{ your id }" role="tabpanel" aria-labelledby="list-{ your id }-list">{ content }</div>-->
+                <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list">
+                    <p><a href="/search">搜索</a>&nbsp; 搜网盘、搜电影、电视剧</p>
+                </div>
+                {% for key, value in content.items %}
+                    <div class="tab-pane fade show" id="list-{{ key }}" role="tabpanel" aria-labelledby="list-{{ key }}-list">
+                        {% for v in value %}
+                            <p><a href="{{ v.url }}">{{ v.name}} </a>&nbsp; {{ v.content }}</p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /.container -->
+
+<!-- Footer -->
+{% include "footer.html" %}
+
+<!-- Bootstrap core JavaScript -->
+{% include "script.html" %}
+
+</body>
+
+</html>

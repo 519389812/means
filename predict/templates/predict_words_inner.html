@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    {% include "head.html" %}
+    <title>文字识别</title>
+</head>
+
+<body>
+<!-- Navigation -->
+
+<!-- Page Content -->
+<div class="container">
+
+    <br><br><br>
+    <!-- Page Heading/Breadcrumbs -->
+    <h1 align="center">文字识别
+        <small></small>
+    </h1>
+    {% include "predict_words_widget_inner.html" %}
+    <br>
+    <p>{{ msg }}</p>
+
+</div>
+<!-- /.container -->
+
+<!-- Footer -->
+
+<!-- Bootstrap core JavaScript -->
+{% include "script.html" %}
+
+</body>
+
+</html>

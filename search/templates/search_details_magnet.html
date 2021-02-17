@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    {% include "head.html" %}
+    <title>Means</title>
+</head>
+
+<body>
+<!-- Navigation -->
+{% include "navigation.html" %}
+
+<!-- Page Content -->
+<div class="container">
+    <br><br>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mb-8 m-auto">
+                <div class="card h-100">
+                    <h4 class="card-header" align="center">{{ title }}</h4>
+                    <div class="card-body">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="share_text" value="{{ href }}">
+                            <span class="inpug-group-append">
+                                <button class="btn btn-secondary" type="button" id="copy_share_text" data-clipboard-target="#share_text">复制</button>
+                            </span>
+                            <span class="inpug-group-append">
+                                <a class="btn btn-primary" type="button" href="{{ href }}">打开</a>
+                            </span>
+                        </div>
+                        <div id="show_copy_result" align="center" style="display: none;">已复制</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.row -->
+    <div class="col-lg-8 mb-8 m-auto">
+        <div class="card h-100">
+            <div class="card-footer" align="center">
+                <div align="center">{{ details }}</div>
+            </div>
+        </div>
+    </div>
+    <br><br>
+</div>
+
+<!-- Footer -->
+{% include "footer.html" %}
+
+<!-- Bootstrap core JavaScript -->
+{% include "script.html" %}
+<script src="{% static 'js/clipboard.min.js' %}"></script>
+<script>
+    var btn=document.getElementById('copy_share_text');
+	var clipboard=new ClipboardJS(btn);
+	clipboard.on('success', function(e){
+		$('#show_copy_result').slideDown().delay(1500).slideUp(300);
+		console.log(e);
+	});
+	clipboard.on('error', function(e){
+		$('#show_copy_result').slideDown().delay(1500).slideUp(300);
+		console.log(e);
+	});
+</script>
+
+</body>
+
+</html>

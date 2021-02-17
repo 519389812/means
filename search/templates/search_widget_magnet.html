@@ -1,0 +1,15 @@
+{% load static %}
+<!-- Search Widget -->
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade" name="magnet" id="magnet_div" role="tabpanel" aria-labelledby="magnet-tab">
+        <form action="{% url 'search_magnet' %}" method="post">
+            {% csrf_token %}
+            <div class="input-group">
+                <input type="text" class="form-control" id="magnet" placeholder="请输入搜索内容..." name="search_string">
+                <span class="input-group-append">
+                    <button class="btn btn-secondary" type="submit">搜磁力</button>
+                </span>
+            </div>
+        </form>
+    </div>
+</div>

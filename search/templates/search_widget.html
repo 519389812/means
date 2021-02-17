@@ -1,0 +1,37 @@
+{% load static %}
+<!-- Search Widget -->
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" name="cloud_disk" data-toggle="tab" href="#cloud_disk_div" role="tab" aria-controls="cloud_disk"
+           aria-selected="true">搜云盘</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" name="movie" data-toggle="tab" href="#movie_div" role="tab" aria-controls="movie"
+           aria-selected="false">搜影视</a>
+    </li>
+</ul>
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" name="cloud_disk" id="cloud_disk_div" role="tabpanel" aria-labelledby="cloud-disk-tab">
+        <form action="{% url 'search_pan' %}" method="post">
+            {% csrf_token %}
+            <div class="input-group">
+                <input type="text" class="form-control" id="cloud_disk" placeholder="请输入搜索内容..." name="search_string">
+                <span class="input-group-append">
+                    <button class="btn btn-secondary" type="submit">搜云盘</button>
+                </span>
+            </div>
+        </form>
+    </div>
+
+    <div class="tab-pane fade" name="movie" id="movie_div" role="tabpanel" aria-labelledby="movie-tab">
+        <form action="{% url 'search_movie' %}" method="post">
+            {% csrf_token %}
+            <div class="input-group">
+                <input type="text" class="form-control" id="movie" placeholder="电影、电视剧..." name="search_string">
+                <span class="input-group-append">
+                    <button class="btn btn-secondary" type="submit">搜影视</button>
+                </span>
+            </div>
+        </form>
+    </div>
+</div>

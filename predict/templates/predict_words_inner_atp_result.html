@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    {% include "head.html" %}
+    <title>文字识别</title>
+</head>
+
+<body>
+<!-- Navigation -->
+
+<!-- Page Content -->
+<div class="container">
+
+    <br><br><br>
+    <!-- Page Heading/Breadcrumbs -->
+    <h1 align="center">ATP识别结果
+        <small></small>
+    </h1>
+    <!-- Search Widget -->
+    <div class="col-lg-7 mb-7 m-auto card">
+        <h5 class="card-header">内容</h5>
+        <div class="card-body">
+            <form action="{% url 'submit_atp' %}" method="post">
+                {% csrf_token %}
+                <label>ATP号码</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" name="atp" placeholder="无" value="{{ atp }}" required>
+                    <span class="inpug-group-append">
+                    <button class="btn btn-secondary" type="submit">提交</button>
+                </span>
+                </div>
+            </form>
+        </div>
+        <div class="card-body">
+            <label>开始日期</label>
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="无" value="{{ date_from }}" disabled>
+                <span class="inpug-group-append">
+            </span>
+            </div>
+        </div>
+        <div class="card-body">
+            <label>截止日期</label>
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="无" value="{{ date_to }}" disabled>
+                <span class="inpug-group-append">
+            </span>
+            </div>
+        </div>
+        <div class="card-body">
+            <label>识别置信率</label>
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="无" value="{{ confidence }}" disabled>
+                <span class="inpug-group-append">
+            </span>
+            </div>
+        </div>
+    </div>
+    <p></p>
+    <p>{{ msg }}</p>
+
+</div>
+<!-- /.container -->
+
+<!-- Footer -->
+
+<!-- Bootstrap core JavaScript -->
+{% include "script.html" %}
+
+</body>
+
+</html>
