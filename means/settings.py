@@ -168,4 +168,3 @@ EMAIL_HOST_USER = 'means_service@hotmail.com'
 EMAIL_HOST_PASSWORD = base64.b64decode(base64.b64decode(pwd)).decode()
 EMAIL_PORT = 587
 EMAIL_SECURITY = 'STARTTLS'
-

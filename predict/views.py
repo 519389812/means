@@ -58,10 +58,10 @@ if online:
     image_dir = "/home/means/means/predict/static/predict/images/"
 else:
     ocr = PaddleOCR(
-        det_model_dir='predict/static/predict/models/ch_ppocr_server_v2.0_det_infer',
-        rec_model_dir='predict/static/predict/models/ch_ppocr_server_v2.0_rec_infer',
+        det_model_dir='../models/ch_ppocr_server_v2.0_det_infer',
+        rec_model_dir='../models/ch_ppocr_server_v2.0_rec_infer',
         # rec_char_dict_path='',
-        cls_model_dir='predict/static/predict/models/ch_ppocr_mobile_v2.0_cls_infer',
+        cls_model_dir='../models/ch_ppocr_mobile_v2.0_cls_infer',
         use_angle_cls=True,
         lang="ch",  # 中英文、英文、法语、德语、韩语、日语lang参数依次为`ch`, `en`, `french`, `german`, `korean`, `japan`
     )
@@ -140,7 +140,7 @@ def submit_atp(request):
                 driver = webdriver.Chrome(executable_path="./static/means/driver/chromedriver.exe", chrome_options=chrome_options)
             driver.maximize_window()
             random_str = generate_random_str(8)
-            img_path = './predict/static/predict/images/%s.png' % random_str
+            img_path = 'image_dir' + '%s.png' % random_str
             while True:
                 driver.get(atp_url)
                 driver.implicitly_wait(10)
