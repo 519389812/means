@@ -78,8 +78,8 @@ def predict_words_inner_atp_image(request):
             img_name = img.name.lower()
             if img_name.endswith("jpg") or img_name.endswith("jpeg") or img_name.endswith("png"):
                 try:
-                    img = Image.open(img)
                     img_path = os.path.join(image_dir, img_name)
+                    img = Image.open(img)
                     img.save(img_path)
                     result = ocr.ocr(img_path, cls=True)
                     text, confidence = '', 0
@@ -102,11 +102,12 @@ def predict_words_inner_atp_image(request):
                     # im_show = draw_ocr(image, boxes, txts, scores, font_path='/path/to/PaddleOCR/doc/simfang.ttf')
                     # im_show = Image.fromarray(im_show)
                     # im_show.save('result.jpg')
-                    if os.path.exists(img_path):
-                        os.remove(img_path)
                     return render(request, 'predict_words_inner_atp_result.html', {'atp': atp, 'date_from': date_from, 'date_to': date_to, 'confidence': confidence})
                 except:
                     return render(request, 'predict_words_inner.html', {'msg': '无效的图片！'})
+                finally:
+                    if os.path.exists(img_path):
+                        os.remove(img_path)
             else:
                 return render(request, 'predict_words_inner.html', {'msg': '图片格式错误，仅支持jpg/jpeg/png图片！'})
         else:
