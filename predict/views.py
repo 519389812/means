@@ -94,6 +94,8 @@ def predict_words_inner_atp_image(request):
                     date_regex = re.compile("from(?P<from>\d{1,2}/?-?(?:[A-Za-z]{3,9}|\d{1,2})/?-?\d{2,4})to(?P<to>\d{1,2}/?-?(?:[A-Za-z]{3,9}|\d{1,2})/?-?\d{2,4})")
                     date_from = re.search(date_regex, text).group('from') if re.search(date_regex, text) else ''
                     date_to = re.search(date_regex, text).group('to') if re.search(date_regex, text) else ''
+                    if os.path.exists(img_path):
+                        os.remove(img_path)
                     # 显示结果
                     # image = Image.open(img_path).convert('RGB')
                     # boxes = [line[0] for line in result]
@@ -140,7 +142,7 @@ def submit_atp(request):
                 driver = webdriver.Chrome(executable_path="./static/means/driver/chromedriver.exe", chrome_options=chrome_options)
             driver.maximize_window()
             random_str = generate_random_str(8)
-            img_path = 'image_dir' + '%s.png' % random_str
+            img_path = image_dir + '%s.png' % random_str
             while True:
                 driver.get(atp_url)
                 driver.implicitly_wait(10)
