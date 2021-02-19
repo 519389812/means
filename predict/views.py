@@ -95,13 +95,13 @@ def predict_words_inner_atp_image(request):
                     date_from = re.search(date_regex, text).group('from') if re.search(date_regex, text) else ''
                     date_to = re.search(date_regex, text).group('to') if re.search(date_regex, text) else ''
                     # 显示结果
-                    image = Image.open(img_path).convert('RGB')
-                    boxes = [line[0] for line in result]
-                    txts = [line[1][0] for line in result]
-                    scores = [line[1][1] for line in result]
-                    im_show = draw_ocr(image, boxes, txts, scores, font_path='/path/to/PaddleOCR/doc/simfang.ttf')
-                    im_show = Image.fromarray(im_show)
-                    im_show.save('result.jpg')
+                    # image = Image.open(img_path).convert('RGB')
+                    # boxes = [line[0] for line in result]
+                    # txts = [line[1][0] for line in result]
+                    # scores = [line[1][1] for line in result]
+                    # im_show = draw_ocr(image, boxes, txts, scores, font_path='/path/to/PaddleOCR/doc/simfang.ttf')
+                    # im_show = Image.fromarray(im_show)
+                    # im_show.save('result.jpg')
                     if os.path.exists(img_path):
                         os.remove(img_path)
                     return render(request, 'predict_words_inner_atp_result.html', {'atp': atp, 'date_from': date_from, 'date_to': date_to, 'confidence': confidence})
