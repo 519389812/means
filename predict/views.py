@@ -132,19 +132,19 @@ def generate_random_str(length=8):
 def submit_atp(request):
     if request.method == "POST":
         atp = request.POST.get('atp', '')
-        try:
-            chrome_options = webdriver.ChromeOptions()
-            chrome_options.add_argument("--headless")
-            chrome_options.add_argument("--disable-gpu")
-            if online:
-                driver = webdriver.Chrome(options=chrome_options)
-            else:
-                driver = webdriver.Chrome(executable_path="./static/means/driver/chromedriver.exe", chrome_options=chrome_options)
-            driver.maximize_window()
-            random_str = generate_random_str(8)
-            img_path = image_dir + '%s.png' % random_str
-            i = 0
-            while i <= 2:
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--disable-gpu")
+        if online:
+            driver = webdriver.Chrome(options=chrome_options)
+        else:
+            driver = webdriver.Chrome(executable_path="./static/means/driver/chromedriver.exe", chrome_options=chrome_options)
+        driver.maximize_window()
+        random_str = generate_random_str(8)
+        img_path = image_dir + '%s.png' % random_str
+        i = 0
+        while i <= 2:
+            try:
                 driver.get(atp_url)
                 driver.implicitly_wait(10)
                 driver.save_screenshot(img_path)
@@ -178,10 +178,14 @@ def submit_atp(request):
                     continue
                 if os.path.exists(img_path):
                     os.remove(img_path)
-                break
-            result = label.text
-            return render(request, 'submit_atp_result.html', {'atp': atp, 'result': result})
-        except:
-            return render(request, 'submit_atp_result.html', {'msg': '出现未知错误！'})
+                result = label.text
+                return render(request, 'submit_atp_result.html', {'atp': atp, 'result': result})
+            except:
+                i += 1
+                time.sleep(3)
+                if os.path.exists(img_path):
+                    os.remove(img_path)
+                continue
+        return render(request, 'submit_atp_result.html', {'msg': '访问ATP网站失败，请重试！'})
     else:
         return render(request, 'error_500_clean.html')
