@@ -143,7 +143,8 @@ def submit_atp(request):
             driver.maximize_window()
             random_str = generate_random_str(8)
             img_path = image_dir + '%s.png' % random_str
-            while True:
+            i = 0
+            while i <= 2:
                 driver.get(atp_url)
                 driver.implicitly_wait(10)
                 driver.save_screenshot(img_path)
@@ -170,7 +171,8 @@ def submit_atp(request):
                 try:
                     label = driver.find_element_by_class_name('pass-form')
                 except NoSuchElementException:
-                    time.sleep(2)
+                    i += 1
+                    time.sleep(3)
                     if os.path.exists(img_path):
                         os.remove(img_path)
                     continue
