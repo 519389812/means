@@ -133,18 +133,19 @@ def submit_atp(request):
     if request.method == "POST":
         atp = request.POST.get('atp', '')
         chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-gpu")
-        if online:
-            driver = webdriver.Chrome(options=chrome_options)
-        else:
-            driver = webdriver.Chrome(executable_path="./static/means/driver/chromedriver.exe", chrome_options=chrome_options)
-        driver.maximize_window()
-        random_str = generate_random_str(8)
-        img_path = image_dir + '%s.png' % random_str
         i = 0
         while i <= 2:
             try:
+                random_str = generate_random_str(8)
+                img_path = image_dir + '%s.png' % random_str
+                if online:
+                    driver = webdriver.Chrome(options=chrome_options)
+                else:
+                    driver = webdriver.Chrome(executable_path="./static/means/driver/chromedriver.exe", chrome_options=chrome_options)
+                driver.maximize_window()
                 driver.get(atp_url)
                 driver.implicitly_wait(10)
                 driver.save_screenshot(img_path)
@@ -186,6 +187,8 @@ def submit_atp(request):
                 if os.path.exists(img_path):
                     os.remove(img_path)
                 continue
+            finally:
+                driver.quit()
         return render(request, 'submit_atp_result.html', {'msg': '访问ATP网站失败，请重试！'})
     else:
         return render(request, 'error_500_clean.html')
