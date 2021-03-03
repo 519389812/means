@@ -36,14 +36,14 @@ SECRET_KEY = 'xz3t#m#8&vj^7zwhcr&b+cw*_l0lw=*^)e0*z82y^pzh-nep@g'
 online = True
 if online:
     DEBUG = False
-    ALLOWED_HOSTS = ['www.meanslab.com']
+    ALLOWED_HOSTS = ['www.meanslab.com', 'meanslab.com']
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': "means$default",
-            'USER': 'means',
+            'NAME': "means",
+            'USER': 'root',
             'PASSWORD': 'zjss123456',
-            'HOST': 'means.mysql.pythonanywhere-services.com',
+            'HOST': 'hwsrv-838845.hostwindsdns.com',
         }
     }
 else:
