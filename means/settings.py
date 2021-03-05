@@ -40,10 +40,10 @@ if online:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': "means",
-            'USER': 'root',
+            'NAME': "means$default",
+            'USER': 'means',
             'PASSWORD': 'zjss123456',
-            'HOST': 'hwsrv-838845.hostwindsdns.com',
+            'HOST': 'means.mysql.pythonanywhere-services.com',
         }
     }
 else:
@@ -68,7 +68,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'collection',
     'search',
-    'predict',
+    # 'predict',
     'user',
     'team',
 ]
@@ -150,9 +150,11 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static', 'means'),
     os.path.join(BASE_DIR, 'collection', 'static', 'collection'),
-    os.path.join(BASE_DIR, 'search', 'static', 'search'),
+    # os.path.join(BASE_DIR, 'search', 'static', 'search'),
     os.path.join(BASE_DIR, 'predict', 'static', 'predict'),
 ]
+
+STATIC_ROOT = '/home/means/nginx/static/'  # collectstatic
 
 AUTH_USER_MODEL = 'user.user'
 

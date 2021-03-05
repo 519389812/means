@@ -19,7 +19,7 @@ import means.views as main_views
 import collection.views as collection_views
 import user.views as user_views
 import search.views as search_views
-import predict.views as predict_views
+# import predict.views as predict_views
 from means.views import error_404, error_400, error_403, error_500
 
 handler404 = error_404
@@ -32,7 +32,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('', main_views.home, name="home"),
     # path('home/', main_views.home, name="home"),
-    path('home/', collection_views.collection, name="collection"),
+    path('', collection_views.collection, name="collection"),
     path('error_404/', main_views.error_404, name="error_404"),
     path('error_400/', main_views.error_400, name="error_400"),
     path('error_403/', main_views.error_403, name="error_403"),
@@ -57,9 +57,9 @@ urlpatterns = [
     path('search_movie/details/', search_views.show_details_movie, name='show_details_movie'),
 
     # predict
-    path('pwi/', predict_views.predict_words_inner, name='predict_words_inner'),
-    path('predict_words_inner_atp_image/', predict_views.predict_words_inner_atp_image, name='predict_words_inner_atp_image'),
-    path('submit_atp/', predict_views.submit_atp, name='submit_atp'),
+    # path('pwi/', predict_views.predict_words_inner, name='predict_words_inner'),
+    # path('predict_words_inner_atp_image/', predict_views.predict_words_inner_atp_image, name='predict_words_inner_atp_image'),
+    # path('submit_atp/', predict_views.submit_atp, name='submit_atp'),
     # path('generate/', predict_views.generate, name='generate'),
     # path('generate/generate_honeyed_words', predict_views.generate_honeyed_words, name='generate_honeyed_words'),
 
@@ -87,5 +87,4 @@ urlpatterns = [
     re_path(r'check_set_user_verify_email/(.*)/$', user_views.check_set_user_verify_email, name="check_set_user_verify_email"),
     re_path(r'reset_password_by_email/(.*)/$', user_views.reset_password_by_email, name="reset_password_by_email"),
     path('feedback/', user_views.feedback, name="feedback"),
-
 ]

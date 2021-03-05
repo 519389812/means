@@ -184,3 +184,71 @@ wcwidth         0.2.5
 Werkzeug        1.0.1
 wheel           0.36.2
 yapf            0.26.0
+
+
+升级python
+# 安装
+apt update
+apt install software-properties-common
+# 添加deadsnakes PPA 源
+add-apt-repository ppa:deadsnakes/ppa
+# 安装python3.8
+apt install python3.8
+# 查看python3.8位置
+which python3.8
+/usr/bin/python3.8
+# 设置3.8
+update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 1
+# 查看python3.5位置 
+which python3.5
+# 设置3.5
+update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.5 2
+# 配置 python3 默认指向 python3.8
+update-alternatives --config python3
+There are 2 choices for the alternative python3 (providing /usr/bin/python3).
+
+  Selection    Path                Priority   Status
+------------------------------------------------------------
+* 0            /usr/bin/python3.5   2         auto mode
+  1            /usr/bin/python3.5   2         manual mode
+  2            /usr/bin/python3.8   1         manual mode
+
+Press <enter> to keep the current choice[*], or type selection number: 2
+# 测试 python 版本
+# python3 -V
+
+
+E:--apt update --fix错误
+# 删除软件及其配置文件
+apt-get --purge remove <package>
+# 删除没用的依赖包
+apt-get autoremove <package>
+
+
+
+distutils.errors.DistutilsError: Could not find suitable distribution for Requirement.parse('setuptools-scm')
+pip install setuptools-scm
+pip install --upgrade pip
+pip install setuptools -U
+
+
+No module named apt_pkg
+cd /usr/lib/python3/dist-packages
+# 当系统python3.6升级到python3.8时
+ln -s apt_pkg.cpython-{36m,38m}-x86_64-linux-gnu.so
+apt install python3-pip
+
+
+ #include <Python.h>
+                ^
+compilation terminated.
+error: command 'x86_64-linux-gnu-gcc' failed with exit status 1
+apt-get install python3.8-dev
+
+
+OSError: mysql_config not found
+apt-get install libmysqlclient-dev
+
+
+Error importing cv2: 'libSM.so.6: cannot open shared object file: No such file or directory'
+apt-get install -y libsm6 libxext6 libxrender-dev
