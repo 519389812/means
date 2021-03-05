@@ -151,7 +151,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static', 'means'),
     os.path.join(BASE_DIR, 'collection', 'static', 'collection'),
     # os.path.join(BASE_DIR, 'search', 'static', 'search'),
-    os.path.join(BASE_DIR, 'predict', 'static', 'predict'),
+    # os.path.join(BASE_DIR, 'predict', 'static', 'predict'),
 ]
 
 STATIC_ROOT = '/home/means/nginx/static/'  # collectstatic
