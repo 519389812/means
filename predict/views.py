@@ -55,7 +55,7 @@ if online:
         use_angle_cls=True,
         lang="ch",  # 中英文、英文、法语、德语、韩语、日语lang参数依次为`ch`, `en`, `french`, `german`, `korean`, `japan`
     )
-    image_dir = "/home/means/predict/static/predict/images/"
+    image_dir = "/home/means/predict/static/predict/img/"
 else:
     ocr = PaddleOCR(
         det_model_dir='/predict/static/predict/models/ch_ppocr_mobile_v2.0_det_infer',
@@ -65,7 +65,7 @@ else:
         use_angle_cls=True,
         lang="ch",  # 中英文、英文、法语、德语、韩语、日语lang参数依次为`ch`, `en`, `french`, `german`, `korean`, `japan`
     )
-    image_dir = "/predict/static/predict/images/"
+    image_dir = "/predict/static/predict/img/"
 
 
 def predict_words_inner_atp_image(request):
