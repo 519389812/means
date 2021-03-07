@@ -11,6 +11,7 @@ def collection(request):
         for classification in classification_list:
             collection_object_dict[classification] = Collection.objects.filter(classification__name=classification).values('name', 'url', 'content')
             collection_object_dict[classification]['score'] = Rate.objects.filter(collection__name=collection_object_dict[classification]['name']).aggregate(Avg('score'))
+            collection_object_dict[classification]['score_count'] = Rate.objects.filter(collection__name=collection_object_dict[classification]['name']).count()
             collection_object_dict[classification]['star_fill'] = range(round(collection_object_dict[classification]['score']))
             collection_object_dict[classification]['star_empty'] = range(5 - collection_object_dict[classification]['star_fill'])
         return render(request, "home.html", {'content': collection_object_dict})

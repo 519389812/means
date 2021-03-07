@@ -33,7 +33,7 @@ SECRET_KEY = 'xz3t#m#8&vj^7zwhcr&b+cw*_l0lw=*^)e0*z82y^pzh-nep@g'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-online = True
+online = False
 if online:
     DEBUG = False
     ALLOWED_HOSTS = ['www.meanslab.com', 'meanslab.com']
