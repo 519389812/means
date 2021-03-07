@@ -3,6 +3,7 @@
 
 <head>
     {% load static %}
+    {% load custom_tags %}
     {% include "head.html" %}
     <title>邮箱验证</title>
 </head>
@@ -20,7 +21,7 @@
         <small>邮箱</small>
     </h1>
 
-    <ol class="breadcrumb">
+    <ol class="breadcrumb" style="background-color: {% background_color %}">
         {% include "route.html" %}
         <li class="breadcrumb-item active">邮箱验证</li>
     </ol>

@@ -87,4 +87,7 @@ urlpatterns = [
     re_path(r'check_set_user_verify_email/(.*)/$', user_views.check_set_user_verify_email, name="check_set_user_verify_email"),
     re_path(r'reset_password_by_email/(.*)/$', user_views.reset_password_by_email, name="reset_password_by_email"),
     path('feedback/', user_views.feedback, name="feedback"),
+
+    # collection
+    re_path(r'collection/collection_details/(.*)/$', collection_views.collection_details, name="collection_details"),
 ]

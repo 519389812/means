@@ -3,6 +3,7 @@
 
 <head>
     {% load static %}
+    {% load custom_tags %}
     {% include "head.html" %}
     <title>403</title>
 
@@ -20,7 +21,7 @@
         <small>请求拒绝</small>
     </h1>
 
-    <ol class="breadcrumb">
+    <ol class="breadcrumb" style="background-color: {% background_color %}">
         <li class="breadcrumb-item active">错误403</li>
     </ol>
 

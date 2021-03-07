@@ -3,6 +3,7 @@
 
 <head>
     {% load static %}
+    {% load custom_tags %}
     {% include "head.html" %}
     <title>Not accessible</title>
 
@@ -21,7 +22,7 @@
         <small>无权限查看</small>
     </h1>
 
-    <ol class="breadcrumb">
+    <ol class="breadcrumb" style="background-color: {% background_color %}">
         {% include "route.html" %}
         <li class="breadcrumb-item active">Not accessible</li>
     </ol>

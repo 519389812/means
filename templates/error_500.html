@@ -3,6 +3,7 @@
 
 <head>
     {% load static %}
+    {% load custom_tags %}
     {% include "head.html" %}
     <title>500</title>
 
@@ -21,7 +22,7 @@
         <small>服务器出现问题</small>
     </h1>
 
-    <ol class="breadcrumb">
+    <ol class="breadcrumb" style="background-color: {% background_color %}">
         {% include "route.html" %}
         <li class="breadcrumb-item active">错误500</li>
     </ol>

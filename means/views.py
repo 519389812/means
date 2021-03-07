@@ -7,7 +7,7 @@ from django.http import *
 
 
 def home(request):
-    return render(request, 'home.html')
+    return render(request, 'collection.html')
 
 
 def error_404(request, exception='', template_name='templates/error_404.html'):

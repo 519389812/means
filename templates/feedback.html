@@ -3,6 +3,7 @@
 
 <head>
     {% load static %}
+    {% load custom_tags %}
     {% include "head.html" %}
     <title>用户反馈</title>
 </head>
@@ -20,7 +21,7 @@
         <small>感谢您的用心反馈</small>
     </h1>
 
-    <ol class="breadcrumb">
+    <ol class="breadcrumb" style="background-color: {% background_color %}">
         {% include "route.html" %}
         <li class="breadcrumb-item active">登录</li>
     </ol>

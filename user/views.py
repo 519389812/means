@@ -41,7 +41,7 @@ def check_bot(func):
         user_agent = parse(args[0].META.get('HTTP_USER_AGENT'))
         if user_agent.is_bot:
             return render(args[0], "error_500.html")
-        return func
+        return func(*args, **kwargs)
     return wrapper
 
 
@@ -114,7 +114,7 @@ def register(request):
             return render(request, "register.html", {"msg": "注册失败，出现未知错误，请联系管理员！"})
     else:
         if request.user.is_authenticated:
-            return redirect('/home')
+            return redirect('/')
         else:
             return render(request, "register.html")
 
@@ -130,7 +130,7 @@ def login(request):
             if next_url != "":
                 return redirect(next_url)
             else:
-                return redirect('/home')
+                return redirect('/')
         else:
             try:
                 user = User.objects.get(username=username)
@@ -145,7 +145,7 @@ def login(request):
                 return render(request, "login.html", {"msg": "用户名或密码错误！"})
     else:
         if request.user.is_authenticated:
-            return redirect('/home')
+            return redirect('/')
         else:
             next_url = request.GET.get('next', '')
             return render(request, "login.html", {'next': next_url})
@@ -311,7 +311,7 @@ def change_password(request):
 
 def logout(request):
     logout_admin(request)
-    return redirect(reverse("home"))
+    return redirect('/')
 
 
 def check_username_validate(request):

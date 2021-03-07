@@ -1,5 +1,6 @@
 {% load static %}
-<nav class="navbar fixed-top navbar-expand-lg navbar-light fixed-top" style="background-color: #e3f2fd;">
+{% load custom_tags %}
+<nav class="navbar fixed-top navbar-expand-lg navbar-light fixed-top" style="background-color: {% background_color %}">
     <div class="container">
         <a class="navbar-brand" href="/">means</a>
         <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
