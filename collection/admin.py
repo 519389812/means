@@ -1,5 +1,5 @@
 from django.contrib import admin
-from collection.models import Classification, Collection, Rate, Recommendation
+from collection.models import Classification, Collection, Rate, Recommendation, Comment
 
 
 class ClassificationAdmin(admin.ModelAdmin):
@@ -14,6 +14,10 @@ class RateAdmin(admin.ModelAdmin):
     pass
 
 
+class CommentAdmin(admin.ModelAdmin):
+    pass
+
+
 class RecommendationAdmin(admin.ModelAdmin):
     pass
 
@@ -21,4 +25,5 @@ class RecommendationAdmin(admin.ModelAdmin):
 admin.site.register(Classification, ClassificationAdmin)
 admin.site.register(Collection, CollectionAdmin)
 admin.site.register(Rate, RateAdmin)
+admin.site.register(Comment, CommentAdmin)
 admin.site.register(Recommendation, RecommendationAdmin)

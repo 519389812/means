@@ -38,7 +38,7 @@
                 {% for key, value in content.items %}
                     <div class="tab-pane fade show" id="list-{{ key }}" role="tabpanel" aria-labelledby="list-{{ key }}-list">
                         {% for v in value %}
-                            <a href="/collection/collection_details/{{ v.id }}">{{ v.name }} </a>{{ v.content }}
+                            <a href="/collection/collection_details/{{ v.id }}" target="_blank">{{ v.name }} </a>{{ v.content }}
                             <div align="right">
                                 {% for i in v.star_fill %}
                                     <img src="{% static 'icon/star-fill.svg' %}" alt="Bootstrap" width="16" height="16">

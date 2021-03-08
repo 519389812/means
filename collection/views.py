@@ -3,6 +3,7 @@ from collection.models import Classification, Collection, Rate, Comment
 from collections import OrderedDict
 from django.db.models import Avg
 from user.views import check_authority, check_frequent, check_bot, check_unique
+from django.forms import model_to_dict
 
 
 def collection(request):
@@ -25,11 +26,24 @@ def collection(request):
 
 def collection_details(request, id):
     if request.method == "GET":
-        collection_object = Collection.objects.filter(id=id).values('id', 'name', 'url', 'content')[0]
-        rate_object_list = list(Rate.objects.filter(collection__id=id).values('user', 'score', 'content', 'create_datetime'))
+        try:
+            collection_object = model_to_dict(Collection.objects.get(id=id), fields=['id', 'name', 'url', 'content'])
+        except:
+            return render(request, "error_403.html", status=403)
+        score_avg = Rate.objects.filter(collection__name=collection_object['name']).aggregate(Avg('score'))['score__avg']
+        collection_object['score'] = score_avg if score_avg else 0
+        collection_object['score_count'] = Rate.objects.filter(collection__name=collection_object['name']).count()
+        star_fill = round(collection_object['score'])
+        collection_object['star_fill'] = range(star_fill)
+        collection_object['star_empty'] = range(5 - star_fill)
+        rate_object_list = list(Rate.objects.filter(collection__id=id).values('id', 'user__username', 'score', 'content', 'create_datetime'))
         for rate_object in rate_object_list:
-            rate_object['comment'] = list(Comment.objects.filter(rate__id=rate_object['id']).values('id', 'user', 'content', 'create_datetime'))
-        return render(request, "collection_details.html", {'content': collection_object, 'rate_content': rate_object_list})
+            rate_object['comment'] = list(Comment.objects.filter(rate__id=rate_object['id']).values('id', 'user__username', 'content', 'create_datetime'))
+        try:
+            rate_object_user = model_to_dict(Rate.objects.get(collection__id=id, user=request.user), fields=['id', 'user__username', 'score', 'content', 'create_datetime'])
+        except:
+            rate_object_user = ""
+        return render(request, "collection_details.html", {'content': collection_object, 'rate_content': rate_object_list, 'rate_object_user': rate_object_user})
     else:
         return render(request, "error_500.html", status=500)
 
@@ -43,8 +57,8 @@ def get_user_ip(request):
 
 @check_bot
 @check_authority
-@check_unique
-@check_frequent
+@check_unique(Rate)
+@check_frequent(Rate)
 def rate(request):
     if request.method == "POST":
         collection_id = request.POST.get('collection', '')
@@ -55,19 +69,29 @@ def rate(request):
             collection = Collection.objects.get(id=collection_id)
         except:
             return render(request, "error_500.html", status=500)
+        collection_object = model_to_dict(collection, fields=['id', 'name', 'url', 'content'])
+        score_avg = Rate.objects.filter(collection__name=collection_object['name']).aggregate(Avg('score'))['score__avg']
+        collection_object['score'] = score_avg if score_avg else 0
+        collection_object['score_count'] = Rate.objects.filter(collection__name=collection_object['name']).count()
+        star_fill = round(collection_object['score'])
+        collection_object['star_fill'] = range(star_fill)
+        collection_object['star_empty'] = range(5 - star_fill)
         Rate.objects.create(collection=collection, user=request.user, score=score, content=content, ip=ip)
-        collection_object = collection.values('id', 'name', 'url', 'content')
-        rate_object_list = list(Rate.objects.filter(collection=collection).values('id', 'user', 'score', 'content', 'create_datetime'))
+        rate_object_list = list(Rate.objects.filter(collection=collection).values('id', 'user__username', 'score', 'content', 'create_datetime'))
         for rate_object in rate_object_list:
-            rate_object['comment'] = list(Comment.objects.filter(rate__id=rate_object['id']).values('id', 'user', 'content', 'create_datetime'))
-        return render(request, "collection_details.html", {'content': collection_object, 'rate_content': rate_object_list})
+            rate_object['comment'] = list(Comment.objects.filter(rate__id=rate_object['id']).values('id', 'user__username', 'content', 'create_datetime'))
+        try:
+            rate_object_user = model_to_dict(Rate.objects.get(collection=collection, user=request.user), fields=['id', 'user__username', 'score', 'content', 'create_datetime'])
+        except:
+            rate_object_user = ''
+        return render(request, "collection_details.html", {'content': collection_object, 'rate_content': rate_object_list, 'rate_object_user': rate_object_user})
     else:
         return render(request, "error_500.html", status=500)
 
 
 @check_bot
 @check_authority
-@check_frequent
+@check_frequent(Comment)
 def comment(request):
     if request.method == "POST":
         rate_id = request.POST.get('rate', '')
@@ -77,11 +101,22 @@ def comment(request):
             rate = Rate.objects.get(id=rate_id)
         except:
             return render(request, "error_500.html", status=500)
+        collection_object = model_to_dict(rate.collection, fields=['id', 'name', 'url', 'content'])
+        score_avg = Rate.objects.filter(collection__name=collection_object['name']).aggregate(Avg('score'))['score__avg']
+        collection_object['score'] = score_avg if score_avg else 0
+        collection_object['score_count'] = Rate.objects.filter(collection__name=collection_object['name']).count()
+        star_fill = round(collection_object['score'])
+        collection_object['star_fill'] = range(star_fill)
+        collection_object['star_empty'] = range(5 - star_fill)
         Comment.objects.create(rate=rate, user=request.user, content=content, ip=ip)
-        collection_object = rate.collection.values('id', 'name', 'url', 'content')
-        rate_object_list = list(Rate.objects.filter(collection=rate.collection).values('id', 'user', 'score', 'content', 'create_datetime'))
+        rate_object_list = list(Rate.objects.filter(collection=rate.collection).values('id', 'user__username', 'score', 'content', 'create_datetime'))
         for rate_object in rate_object_list:
-            rate_object['comment'] = list(Comment.objects.filter(rate__id=rate_object['id']).values('id', 'user', 'content', 'create_datetime'))
-        return render(request, "collection_details.html", {'content': collection_object, 'rate_content': rate_object_list})
+            rate_object['comment'] = list(Comment.objects.filter(rate__id=rate_object['id']).values('id', 'user__username', 'content', 'create_datetime'))
+        try:
+            rate_object_user = model_to_dict(Rate.objects.get(collection=rate.collection, user=request.user), fields=['id', 'user__username', 'score', 'content', 'create_datetime'])
+        except:
+            rate_object_user = ""
+        return render(request, "collection_details.html", {'content': collection_object, 'rate_content': rate_object_list, 'rate_object_user': rate_object_user})
     else:
         return render(request, "error_500.html", status=500)
+

@@ -19,6 +19,8 @@ from means.settings import EMAIL_HOST_USER
 import datetime
 import user_agents
 from django.contrib.auth.decorators import login_required
+from django.forms import model_to_dict
+
 
 
 from urllib.parse import urlparse
@@ -54,7 +56,7 @@ def check_frequent(model_object):
                 ip = args[0].META.get('REMOTE_ADDR').split(',')[0]
             last_ip_object = model_object.objects.filter(ip=ip).last()
             last_user_object = model_object.objects.filter(user=args[0].user).last()
-            if not (last_ip_object is None or check_datetime_valid(timezone.localtime(last_ip_object["create_datetime"]), timezone.localtime(timezone.now()))) and not (last_user_object is None or check_datetime_valid(timezone.localtime(last_user_object["create_datetime"]), timezone.localtime(timezone.now()))):
+            if not (last_ip_object is None or check_datetime_valid(timezone.localtime(last_ip_object.create_datetime), timezone.localtime(timezone.now()))) and not (last_user_object is None or check_datetime_valid(timezone.localtime(last_user_object.create_datetime), timezone.localtime(timezone.now()))):
                 return render(args[0], "error_too_frequent.html")
             return func(*args, **kwargs)
         return args_wrapper
@@ -162,8 +164,8 @@ def login(request):
             return render(request, "login.html", {'next': next_url})
 
 
-def check_datetime_valid(create_timezone, now_timezone, std_seconds=60):
-    return True if now_timezone - create_timezone > std_seconds else False
+def check_datetime_valid(create_timezone, now_timezone, std_seconds=30):
+    return True if (now_timezone - create_timezone).seconds > std_seconds else False
 
 
 @check_authority
