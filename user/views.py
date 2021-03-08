@@ -55,7 +55,18 @@ def check_frequent(model_object):
             last_ip_object = model_object.objects.filter(ip=ip).last()
             last_user_object = model_object.objects.filter(user=args[0].user).last()
             if not (last_ip_object is None or check_datetime_valid(timezone.localtime(last_ip_object["create_datetime"]), timezone.localtime(timezone.now()))) and not (last_user_object is None or check_datetime_valid(timezone.localtime(last_user_object["create_datetime"]), timezone.localtime(timezone.now()))):
-                return render(args[0], "error_500.html")
+                return render(args[0], "error_too_frequent.html")
+            return func(*args, **kwargs)
+        return args_wrapper
+    return func_wrapper
+
+
+def check_unique(model_object):
+    def func_wrapper(func):
+        def args_wrapper(*args, **kwargs):
+            exist_count = model_object.objects.filter(user=args[0].user).count()
+            if exist_count > 0:
+                return render(args[0], "error_same_operation.html")
             return func(*args, **kwargs)
         return args_wrapper
     return func_wrapper

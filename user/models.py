@@ -38,10 +38,10 @@ class EmailVerifyRecord(models.Model):
 class Feedback(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="用户")
-    create_datetime = models.DateTimeField(auto_now_add=True, verbose_name="发送时间")
     title = models.TextField(max_length=100, verbose_name="标题")
     content = models.TextField(max_length=800, verbose_name="内容")
     ip = models.GenericIPAddressField(verbose_name="IP地址")
+    create_datetime = models.DateTimeField(auto_now_add=True, verbose_name="发送时间")
 
     class Meta:
         verbose_name = "用户反馈"

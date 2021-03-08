@@ -32,7 +32,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('', main_views.home, name="home"),
     # path('home/', main_views.home, name="home"),
-    path('', collection_views.collection, name="collection"),
     path('error_404/', main_views.error_404, name="error_404"),
     path('error_400/', main_views.error_400, name="error_400"),
     path('error_403/', main_views.error_403, name="error_403"),
@@ -42,6 +41,8 @@ urlpatterns = [
     path('error_403_clean/', main_views.error_403_clean, name="error_403_clean"),
     path('error_500_clean/', main_views.error_500_clean, name="error_500_clean"),
     path('error_not_accessible/', main_views.error_not_accessible, name="error_not_accessible"),
+    path('error_too_frequent/', main_views.error_too_frequent, name="error_too_frequent"),
+    path('error_same_operation/', main_views.error_same_operation, name="error_same_operation"),
     path('release_show/', main_views.release_show, name="release_show"),
     path('copyright_show/', main_views.copyright_show, name="copyright_show"),
     path('agreement_show/', main_views.agreement_show, name="agreement_show"),
@@ -89,5 +90,8 @@ urlpatterns = [
     path('feedback/', user_views.feedback, name="feedback"),
 
     # collection
+    path('', collection_views.collection, name="collection"),
     re_path(r'collection/collection_details/(.*)/$', collection_views.collection_details, name="collection_details"),
+    path('collection/rate/', collection_views.rate, name='collection_rate'),
+    path('collection/rate/comment/', collection_views.comment, name='collection_rate_comment'),
 ]

@@ -46,6 +46,14 @@ def error_not_accessible(request):
     return render(request, "error_not_accessible.html")
 
 
+def error_too_frequent(request):
+    return render(request, "error_too_frequent.html")
+
+
+def error_same_operation(request):
+    return render(request, "error_same_operation.html")
+
+
 def release_show(request):
     return render(request, "release_show.html")
 

@@ -31,73 +31,72 @@
         <div class="col-lg-8">
 
             <!-- Preview Image -->
-            <!--            <img class="img-fluid rounded" src="http://placehold.it/900x300" alt="">-->
+            <img class="img-fluid rounded" src="" alt="">
 
             <hr>
-            <p>地址：{{ content.url }}<p>
-            <!-- Post Content -->
+            <p>地址：{{ content.url }}
+            <p>
+                <!-- Post Content -->
             <p>{{ content.content }}</p>
             <hr>
 
             <!-- Comments Form -->
             <div class="card my-4">
                 <h5 class="card-header">还请您留下对此网站的印象:</h5>
+                <p>注：每个用户只能评价一次</p>
                 <div class="card-body">
-                    <form>
-                        <label style="float:left">评分:&nbsp;</label><div class="score_show" style="float:left"></div>
-                        <input type="range" class="custom-range" min="1" max="5" step="1" name="score" id="score" aria-required="true">
+                    <form name="rateForm" id="rateForm" action="{% url 'collect_rate' %}" method="post">
+                        <input type="text" class="form-control" name="collection" value="{{ content.id }}" hidden>
+                        <label style="float:left">评分:&nbsp;</label>
+                        <div class="score_show" style="float:left"></div>
+                        <input type="range" class="custom-range" min="1" max="5" step="1" name="score" id="score"
+                               aria-required="true">
                         <label>评分理由（请不要超过400字）:</label>
                         <div class="form-group">
                             <textarea class="form-control" rows="6" name="content" aria-required="true"></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="submit" class="btn btn-primary">提交</button>
                     </form>
                 </div>
             </div>
 
-            <!-- Single Comment -->
-            <div class="media mb-4">
-                <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
-                <div class="media-body">
-                    <h5 class="mt-0">Commenter Name</h5>
-                    Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras
-                    purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi
-                    vulputate fringilla. Donec lacinia congue felis in faucibus.
-                </div>
-            </div>
-
             <!-- Comment with nested comments -->
+            {% for value in rate_content %}
             <div class="media mb-4">
                 <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
                 <div class="media-body">
-                    <h5 class="mt-0">Commenter Name</h5>
-                    Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras
-                    purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi
-                    vulputate fringilla. Donec lacinia congue felis in faucibus.
-
-                    <div class="media mt-4">
-                        <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
-                        <div class="media-body">
-                            <h5 class="mt-0">Commenter Name</h5>
-                            Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin.
-                            Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc
-                            ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
-                        </div>
+                    <h5 class="mt-0">{{ value.user }}</h5>
+                    {{ value.content }}
+                    <footer class="blockquote-footer">发表于:<cite title="Source Title">{{ value.create_datetime }}</cite></footer>
+                    <div style="float:right"><a data-toggle="collapse" href="#comment_form" role="button"
+                                                aria-expanded="false" aria-controls="comment_form">回复</a></div>
+                    <div class="collapse input-group" id="comment_form">
+                        <form name="commentForm" id="commentForm" action="{% url 'collection_rate_comment' %}"
+                              method="post">
+                            <div class="card card-body">
+                                <input type="text" class="form-control" name="rate" value="{{ value.id }}" hidden>
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">您的回复:</span>
+                                </div>
+                                <textarea class="form-control" aria-label="With textarea" name="content"
+                                          aria-required="true"></textarea>
+                            </div>
+                        </form>
                     </div>
-
-                    <div class="media mt-4">
-                        <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
-                        <div class="media-body">
-                            <h5 class="mt-0">Commenter Name</h5>
-                            Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin.
-                            Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc
-                            ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
+                    {% for v in value.comment %}
+                        <div class="media mt-4">
+                            <img class="d-flex mr-3 rounded-circle" src="" alt="">
+                            <div class="media-body">
+                                <h5 class="mt-0">{{ v.user }}</h5>
+                                {{ v.content }}
+                                <footer class="blockquote-footer">发表于:<cite title="Source Title">{{ v.create_datetime }}</cite></footer>
+                            </div>
                         </div>
-                    </div>
+                    {% endfor %}
 
                 </div>
             </div>
-
+            {% endfor %}
         </div>
 
         <!-- Sidebar Widgets Column -->
@@ -133,6 +132,8 @@ $( document).ready(function() {
          $('div.score_show').text(v);
     });
 });
+
+
 </script>
 
 </body>

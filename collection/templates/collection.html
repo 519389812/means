@@ -38,7 +38,7 @@
                 {% for key, value in content.items %}
                     <div class="tab-pane fade show" id="list-{{ key }}" role="tabpanel" aria-labelledby="list-{{ key }}-list">
                         {% for v in value %}
-                            <a href="{{ v.url }}">{{ v.name }} </a>{{ v.content }}
+                            <a href="/collection/collection_details/{{ v.id }}">{{ v.name }} </a>{{ v.content }}
                             <div align="right">
                                 {% for i in v.star_fill %}
                                     <img src="{% static 'icon/star-fill.svg' %}" alt="Bootstrap" width="16" height="16">
@@ -46,7 +46,7 @@
                                 {% for i in v.star_empty %}
                                     <img src="{% static 'icon/star.svg' %}" alt="Bootstrap" width="16" height="16">
                                 {% endfor %}
-                                {{ v.score_count }}条<a href="/collection/collection_details/{{ v.id }}">评分</a>
+                                {{ v.score_count }}条评分
                             </div>
                         {% endfor %}
                     </div>
