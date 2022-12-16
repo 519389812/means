@@ -13,9 +13,10 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 import configparser
 import base64
+from pathlib import Path
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
 config_file = os.path.join(BASE_DIR, "config" + os.sep + "config.ini")
 config = configparser.ConfigParser()
@@ -34,9 +35,9 @@ SECRET_KEY = 'xz3t#m#8&vj^7zwhcr&b+cw*_l0lw=*^)e0*z82y^pzh-nep@g'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 online = False
-if online:
+if 'meanslab' in BASE_DIR.parts:
     DEBUG = False
-    ALLOWED_HOSTS = ['www.meanslab.com', 'meanslab.com']
+    ALLOWED_HOSTS = ['means.pythonanywhere.com', 'www.meanslab.com', 'meanslab.com']
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -58,19 +59,21 @@ else:
 
 
 # Application definition
-
 INSTALLED_APPS = [
+    'simpleui',
+    'ckeditor',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'notifications',
+    'notice',
+    'bbs',
     'collection',
-    'search',
-    # 'predict',
+    # 'search',
     'user',
-    'team',
 ]
 
 MIDDLEWARE = [
@@ -92,7 +95,8 @@ TEMPLATES = [
             os.path.join(BASE_DIR, 'templates'),
             os.path.join(BASE_DIR, 'collection', 'templates'),
             os.path.join(BASE_DIR, 'search', 'templates'),
-            os.path.join(BASE_DIR, 'predict', 'templates'),
+            os.path.join(BASE_DIR, 'notice', 'templates'),
+            os.path.join(BASE_DIR, 'bbs', 'templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -150,11 +154,9 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static', 'means'),
     os.path.join(BASE_DIR, 'collection', 'static', 'collection'),
-    # os.path.join(BASE_DIR, 'search', 'static', 'search'),
-    # os.path.join(BASE_DIR, 'predict', 'static', 'predict'),
+    os.path.join(BASE_DIR, 'search', 'static', 'search'),
+    os.path.join(BASE_DIR, 'notice', 'static', 'notice'),
 ]
-
-STATIC_ROOT = '/home/means/nginx/static/'  # collectstatic
 
 AUTH_USER_MODEL = 'user.user'
 
@@ -170,3 +172,84 @@ EMAIL_HOST_USER = 'means_service@hotmail.com'
 EMAIL_HOST_PASSWORD = base64.b64decode(base64.b64decode(pwd)).decode()
 EMAIL_PORT = 587
 EMAIL_SECURITY = 'STARTTLS'
+
+# session
+SESSION_COOKIE_AGE = 3600  # Session的cookie失效时间（秒）
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # 是否关闭浏览器使Session过期
+SESSION_SAVE_EVERY_REQUEST = True  # 是否每次请求都保存Session
+
+# notifications 设置“软删除”
+DJANGO_NOTIFICATIONS_CONFIG = {'USE_JSONFIELD': True}
+
+# simpleui
+SIMPLEUI_LOGO = ''
+SIMPLEUI_HOME_TITLE = "means后台"
+SIMPLEUI_HOME_ICON = "fa-light fa-tickets-airline"
+SIMPLEUI_ANALYSIS = False
+SIMPLEUI_LOGIN_PARTICLES = False
+SIMPLEUI_HOME_INFO = False
+SIMPLEUI_DEFAULT_THEME = 'admin.lte.css'
+
+# ckeditor 使用ck的工具栏并修改，宽度自适应
+CKEDITOR_CONFIGS = {
+    # django-ckeditor默认使用default配置
+    'default': {
+        # 编辑器宽度自适应
+        'width': 'auto',
+        'height': '300px',
+        # tab键转换空格数
+        'tabSpaces': 4,
+        # 工具栏风格
+        'toolbar': 'Custom',
+        # 工具栏按钮
+        'toolbar_Custom': [
+            # 预览、表情
+            ['Preview', 'Smiley'],
+            # 字体风格
+            ['Bold', 'Italic', 'Underline', 'RemoveFormat', 'Blockquote'],
+            # 字体颜色
+            ['TextColor', 'BGColor'],
+            # 格式、字体、大小
+            ['Format', 'Font', 'FontSize'],
+            # 链接
+            ['Link', 'Unlink'],
+            # 列表
+            ['Image', 'NumberedList', 'BulletedList'],
+            # 居左，居中，居右
+            ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+            # 最大化
+            ['Maximize']
+        ],
+        # 加入代码块插件
+        'extraPlugins': ','.join(['codesnippet', 'image2', 'filebrowser', 'widget', 'lineutils']),
+    },
+    # 评论
+    'comment': {
+        # 编辑器宽度自适应
+        'width': 'auto',
+        'height': '140px',
+        # tab键转换空格数
+        'tabSpaces': 4,
+        # 工具栏风格
+        'toolbar': 'Custom',
+        # 工具栏按钮
+        'toolbar_Custom': [
+            # 表情 代码块
+            ['Smiley', 'CodeSnippet'],
+            # 字体风格
+            ['Bold', 'Italic', 'Underline', 'RemoveFormat', 'Blockquote'],
+            # 字体颜色
+            ['TextColor', 'BGColor'],
+            # 链接
+            ['Link', 'Unlink'],
+            # 列表
+            ['NumberedList', 'BulletedList'],
+        ],
+        # 加入代码块插件
+        'extraPlugins': ','.join(['codesnippet']),
+    }
+}
+
+# nanoid
+CODE_STRING = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+CODE_SIZE = 16

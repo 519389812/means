@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    {% load custom_tags %}
+    {% include "head.html" %}
+    <title>论坛</title>
+</head>
+
+<body>
+
+<!-- Navigation -->
+{% include "navigation.html" %}
+
+<!-- Page Content -->
+<div class="container">
+
+    <!-- Page Heading/Breadcrumbs -->
+    <h1 class="mt-4 mb-3">帖子
+        <small>查看</small>
+    </h1>
+
+    <ol class="breadcrumb">
+        {% include "route.html" %}
+        {% include "route_bbs.html" %}
+        <li class="breadcrumb-item active">查看帖子</li>
+    </ol>
+
+    <div class="row">
+
+        <!-- Post Content Column -->
+        <div class="col-lg-8">
+
+            <!-- Preview Image -->
+            <h2>{{ post.title }}</h2>
+
+            <hr>
+
+            <!-- Post Content -->
+            <p>{% html_format post.content %}</p>
+
+            <hr>
+
+            <!-- Date/Time -->
+            <footer class="blockquote-footer" style="text-align: right">
+                <cite title="Source Title">
+                    <a href="#">{{ post.user.username }}</a>
+                    <span style="float: right">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发表于:<cite title="Source Title">{{ post.create_datetime }}</cite>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;更新于:<cite title="Source Title">{{ post.update_datetime }}</cite></span>
+                </cite>
+            </footer>
+
+            <!-- Comments Form -->
+            <div class="card my-4">
+                <h5 class="card-header">评论:</h5>
+                <div class="card-body">
+                    <form action="{% url 'bbs:add_comment' %}" method="post">
+                        {% csrf_token %}
+                        <input name="post_id" value="{{ post.id }}" hidden/>
+                        <input id="related_post_id" name="related_post_id" value="" hidden/>
+                        <div class="form-group">
+                            <textarea id="content" class="form-control" rows="3" name="content"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">提交</button>
+                    </form>
+                </div>
+            </div>
+
+            {% for related_post in related_post_list %}
+                <!-- Comment with nested comments -->
+                <div class="media mb-4">
+                    <div class="media-body" id="comment">
+                        <h6 class="mt-0">{{ related_post.user__username }}</h6>
+                        {{ related_post.content }}
+                        <span style="float: right"><a href="javascript:void(0);" type="button" id="reply_btn" style="text-align: right" onclick="set_reply_target('{{ related_post.user__username }}', {{ related_post.id }})">回复</a></span>
+                        {% if related_post.children|length > 0 %}
+                            {% for related_post_children in related_post.children %}
+                                <div class="media mt-4">
+                                    <div class="media-body">
+                                        <h6 class="mt-0">{{ related_post_children.user__username }}</h6>
+                                        {{ related_post_children.content }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        <footer class="blockquote-footer" style="text-align: right">
+                            <cite title="Source Title">{{ related_post.create_datetime }}</cite>
+                        </footer>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Sidebar Widgets Column -->
+        <div class="col-md-4">
+
+            <div class="col-lg-4 mb-4">
+                <h3>发帖</h3>
+                <p>
+                    <abbr title="发布">发布</abbr><a href="{% url 'bbs:add_post' %}">新帖</a>
+                </p>
+                {% if request.user == post.user %}
+                    <p>
+                        <abbr title="帖子">帖子</abbr><a href="{% url 'bbs:edit_post' %}?id={{ post.id }}&post_id={{ post.id }}">修改</a>
+                    </p>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+    <!-- /.row -->
+
+</div>
+<!-- /.container -->
+
+<!-- Footer -->
+{% include "footer.html" %}
+
+<!-- Bootstrap core JavaScript -->
+{% include "script.html" %}
+<script>
+    function set_reply_target(related_post_username, related_post_id){
+        var pattern = new RegExp("[A-Za-z0-9\u4E00-\u9FA5]+");
+        var reply_text = '@' + related_post_username + ':';
+        var content_text = $("#content").val()
+        if (content_text !== "") {
+            if ( content_text.startsWith("@") && content_text.indexOf(":") !== -1 ) {
+                if ( pattern.test(content_text.slice(1, content_text.indexOf(":"))) )
+                    content_text = content_text.slice(content_text.indexOf(":") + 1);
+            }
+            reply_text = reply_text + content_text;
+        }
+        $("#content").val(reply_text);
+        $("#related_post_id").attr("value", related_post_id);
+        $('html,body').animate({ scrollTop: $("#content").offset().top - 100 }, 500)
+    };
+
+    var getCursortPosition = function(ctrl) {
+        var CaretPos = 0;
+        // IE Support
+        if (document.selection) {
+            ctrl.focus();
+            var Sel = document.selection.createRange();
+            Sel.moveStart ('character', -ctrl.value.length);
+            CaretPos = Sel.text.length;
+        }
+        // Firefox support
+        else if (ctrl.selectionStart || +ctrl.selectionStart === 0)
+            {CaretPos = ctrl.selectionStart;}
+        return (CaretPos);
+    };
+
+    var selectSomeText = function(element,begin,end) {
+        if (element.setSelectionRange) {
+            element.setSelectionRange(begin,end);
+        } else if (element.createTextRange) {
+            var range = element.createTextRange();
+            range.moveStart("character",begin);
+            range.moveEnd("character",end);
+            range.select();
+        }
+    };
+
+    var delWholeWord = function(text, field, pos){
+        var pattern_start = new RegExp("[A-Za-z0-9\u4E00-\u9FA5\:]");
+        var pattern_inner = new RegExp("[A-Za-z0-9\u4E00-\u9FA5]");
+        var startIndex = pos;
+        if (pattern_start.test(field.charAt(pos-1))){
+            for (var i=pos-2;i>=0;i--){
+                if (i === 0 || pattern_inner.test(field.charAt(i)) === false) {
+                    if (field.charAt(i) === '@' && i === 0){
+                        startIndex = i;
+                        break;
+                    } else {
+                        return;
+                    }
+                }
+            }
+            selectSomeText(text, startIndex, pos)
+        }
+    };
+
+    // 整体删除
+    $('#content').keydown(function(event) {
+        if(event.keyCode !== 8) {
+            return;
+        }
+        var bodyText = $(this)[0];
+        var bodyField = $(this).val();
+        var pos = getCursortPosition(bodyText);
+        delWholeWord(bodyText, bodyField, pos);
+    });
+
+    $(document).ready(function() {
+        var content = '';
+        $("#comment").append(
+
+        )
+    })
+
+</script>
+
+</body>
+
+</html>

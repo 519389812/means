@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    {% include "head.html" %}
+    {% include "ckeditor_css.html" %}
+    <title>论坛</title>
+</head>
+
+<body>
+
+<!-- Navigation -->
+{% include "navigation.html" %}
+
+<!-- Page Content -->
+<div class="container">
+
+    <!-- Page Heading/Breadcrumbs -->
+    <h1 class="mt-4 mb-3">发起
+        <small>新帖</small>
+    </h1>
+
+    <ol class="breadcrumb">
+        {% include "route.html" %}
+        {% include "route_bbs.html" %}
+        <li class="breadcrumb-item active">发起新帖</li>
+    </ol>
+
+    <div class="row">
+
+        <!-- Post Content Column -->
+        <div class="col-lg-8">
+
+            <!-- Comments Form -->
+            <div class="card my-4">
+                <h5 class="card-header">发表新帖:</h5>
+                <div class="card-body">
+                    {% if not post.id %}
+                        <form action="{% url 'bbs:add_post' %}" method="post">
+                    {% else %}
+                        <form action="{% url 'bbs:edit_post' %}" method="post">
+                    {% endif %}
+                        {% csrf_token %}
+                        <input name="id" value="{{ post.id }}" hidden>
+                        <input name="post_id" value="{{ post.id }}" hidden>
+                        <div class="form-group">
+                            <label for="classification">分类:</label>
+                            <select class="form-control" id="classification_id" name="classification_id" required>
+                                {% for c in classification %}
+                                    {% if c.id == post.classification.id %}
+                                        <option value="{{ c.id }}" selected>{{ c.name }}</option>
+                                    {% else %}
+                                        <option value="{{ c.id }}">{{ c.name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="title">标题:</label>
+                            <textarea id="title" name="title" class="form-control" rows="3" cols="100" maxlength="50" required>{{ post.title }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            {% include "richtext_editor.html" %}
+                        </div>
+                        <button type="submit" class="btn btn-primary">提交</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Sidebar Widgets Column -->
+        <div class="col-md-4">
+
+            <div class="col-lg-4 mb-4">
+                <h3>看帖</h3>
+                <p>
+                    <abbr title="查看">查看</abbr><a href="{% url 'bbs:bbs' %}">帖子</a>
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+    <!-- /.row -->
+
+</div>
+<!-- /.container -->
+
+<!-- Footer -->
+{% include "footer.html" %}
+
+<!-- Bootstrap core JavaScript -->
+{% include "script.html" %}
+{% include "richtext_script.html" %}
+
+</body>
+
+</html>

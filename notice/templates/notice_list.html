@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    {% include "head.html" %}
+    <title>通知</title>
+</head>
+
+<body>
+
+<!-- Navigation -->
+{% include "navigation.html" %}
+
+<!-- Page Content -->
+<div class="container">
+
+    <!-- Page Heading/Breadcrumbs -->
+    <h1 class="mt-4 mb-3">查看
+        <small>未读消息</small>
+    </h1>
+
+    <ol class="breadcrumb">
+        {% include "route.html" %}
+        <li class="breadcrumb-item active">未读消息</li>
+    </ol>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Sidebar Column -->
+        <div class="col-lg-3 mb-4">
+            <div class="list-group" id="list-tab" role="tablist">
+<!--            <a class="list-group-item list-group-item-action" id="list-{ your id }-list" data-toggle="list" href="#list-{ your id }" role="tab" aria-controls="{ your id }">{ name }</a>-->
+                <a class="list-group-item list-group-item-action active" id="list-unread-list" data-toggle="list" href="#list-unread" role="tab" aria-controls="unread">未读消息</a>
+                <a class="list-group-item list-group-item-action" id="list-read-list" data-toggle="list" href="#list-read" role="tab" aria-controls="read">已读消息</a>
+            </div>
+        </div>
+        <!-- Content Column -->
+        <div class="col-lg-9 mb-4">
+            <div class="tab-content" id="nav-tabContent">
+<!--            <div class="tab-pane fade show" id="list-{ your id }" role="tabpanel" aria-labelledby="list-{ your id }-list">{ content }</div>-->
+                <div class="tab-pane fade show active" id="list-unread" role="tabpanel" aria-labelledby="list-unread-list">
+                    <li class="list-group-item">
+                        {% if unread_list|length > 0 %}
+                            <a href="{% url 'notice:mark_notice_as_read' %}" class="btn btn-warning" role="button"><span style="color: white">全部标记已读</span></a>
+                        {% else %}
+                            <a href="{% url 'notice:mark_notice_as_read' %}" class="btn btn-secondary" role="button" style="pointer-events: none; cursor: default; color:gray;"><span style="color: white">无未读消息</span></a>
+                        {% endif %}
+                    </li>
+                    {% for unread in unread_list %}
+                        <li class="list-group-item" id="notice_link">
+                            <a href="{% url 'notice:mark_notice_as_read' %}?notice_id={{ unread.id }}">
+                                <span style="color: #5897fb;">{{ unread.actor }}&nbsp;&nbsp;</span>给您发了一条消息:&nbsp;&nbsp;{{ unread.verb }}。
+                            </a>
+                            <span style="float: right">{{ unread.timestamp|date:"Y/m/d H:i" }}</span>
+                        </li>
+                    {% endfor %}
+                </div>
+                <div class="tab-pane fade show" id="list-read" role="tabpanel" aria-labelledby="list-read-list">
+                    {% for read in read_list %}
+                        <li class="list-group-item" id="notice_link">
+                            <span style="color: #5897fb;">{{ read.actor }}&nbsp;&nbsp;</span>给您发了一条消息:&nbsp;&nbsp;{{ read.verb }}。
+                            <span style="text-align: right">{{ read.timestamp|date:"Y/m/d H:i" }}</span>
+                        </li>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.container -->
+     <style>
+    #notice_link a:link {
+        color: black;
+    }
+
+    #notice_link a:visited {
+        color: lightgrey;
+    }
+    </style>
+</div>
+<!-- Footer -->
+{% include "footer.html" %}
+
+<!-- Bootstrap core JavaScript -->
+{% include "script.html" %}
+
+</body>
+
+</html>

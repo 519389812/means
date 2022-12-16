@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    {% load custom_tags %}
+    {% include "head.html" %}
+    <title>发送新通知</title>
+</head>
+
+<body>
+
+<!-- Navigation -->
+{% include "navigation.html" %}
+
+<!-- Page Content -->
+<div class="container">
+
+    <!-- Page Heading/Breadcrumbs -->
+    <h1 class="mt-4 mb-3">新通知
+        <small></small>
+    </h1>
+
+    <ol class="breadcrumb" style="background-color: {% background_color %}">
+        {% include "route.html" %}
+        <li class="breadcrumb-item active">新通知</li>
+    </ol>
+
+    <!-- Contact Form -->
+    <!-- In order to set the email address and subject line for the contact form go to the bin/contact_me.php file. -->
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <h3>通知内容:</h3>
+            <form name="newNoticeForm" id="newNoticeForm" action="{% url 'notice:send_notice' %}" method="post">
+                {% csrf_token %}
+                <div class="control-group form-group">
+                    <div class="controls">
+                        <label>发送目标:</label>
+                        <select class="form-control" id="recipient" name="recipient" required>
+                            <option value="all">所有人</option>
+                            <option value="superuser">管理员</option>
+                            <option value="self">自己</option>
+                        </select>
+                        <p class="help-block" id="position_validate"></p>
+                    </div>
+                </div>
+                <div class="control-group form-group">
+                    <div class="controls">
+                        <textarea class="form-control" id="content" name="content" placeholder="请输入发送内容..." rows="10"
+                                  required data-validation-required-message="Please enter notice." aria-required="true"></textarea>
+                        <p style="color:red;font-size:14px" class="help-block" id="feedback_validate"></p>
+                    </div>
+                </div>
+                {% include "message.html" %}
+                <!-- For success/fail messages -->
+                <button type="submit" class="btn btn-primary" id="submit">发送</button>
+            </form>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <h3>Tips</h3>
+            {% include "login_register_tips.html" %}
+        </div>
+    </div>
+    <!-- /.row -->
+
+</div>
+<!-- /.container -->
+
+<!-- Footer -->
+{% include "footer.html" %}
+
+<!-- Bootstrap core JavaScript -->
+{% include "script.html" %}
+
+</body>
+
+</html>

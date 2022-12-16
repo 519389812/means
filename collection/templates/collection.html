@@ -4,7 +4,7 @@
 <head>
     {% load static %}
     {% include "head.html" %}
-    <title>means敏库</title>
+    <title>means</title>
 </head>
 
 <body>
@@ -33,12 +33,12 @@
             <div class="tab-content" id="nav-tabContent">
 <!--            <div class="tab-pane fade show" id="list-{ your id }" role="tabpanel" aria-labelledby="list-{ your id }-list">{ content }</div>-->
                 <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list">
-                    <p><a href="/search">敏搜搜索</a>&nbsp; 搜网盘、搜电影、电视剧</p>
+                    <h2>全手工收集，个人自用的学习版资源</h2>
                 </div>
                 {% for key, value in content.items %}
                     <div class="tab-pane fade show" id="list-{{ key }}" role="tabpanel" aria-labelledby="list-{{ key }}-list">
                         {% for v in value %}
-                            <a href="/collection/collection_details/{{ v.id }}" target="_blank">{{ v.name }} </a>{{ v.content }}
+                            <h5><a href="{% url 'collection:collection_details' v.id %}" target="_blank">{{ v.title }} </a></h5>
                             <div align="right">
                                 {% for i in v.star_fill %}
                                     <img src="{% static 'icon/star-fill.svg' %}" alt="Bootstrap" width="16" height="16">

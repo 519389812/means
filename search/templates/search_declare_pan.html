@@ -18,7 +18,7 @@
     <div class="col-lg-7 mb-7 m-auto">
         <div class="card h-100">
             <div class="card-footer" align="center">
-                <a href="/search_pan/jump/?{{ href }}" class="btn btn-primary">了解并同意以上内容，点击访问资源</a>
+                <a href="{% url 'search:search_pan' %}/jump/?{{ href }}" class="btn btn-primary">了解并同意以上内容，点击访问资源</a>
                 <div align="center">{{ code }}</div>
             </div>
         </div>

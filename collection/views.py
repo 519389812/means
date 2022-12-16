@@ -1,9 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, reverse
+from django.http import JsonResponse
+import json
 from collection.models import Classification, Collection, Rate, Comment
 from collections import OrderedDict
 from django.db.models import Avg
-from user.views import check_authority, check_frequent, check_bot, check_unique
+from user.views import check_authority, check_frequent, check_bot, check_unique, check_agreement_signed
 from django.forms import model_to_dict
+from user.models import Agreement, AgreementSignRecord
 
 
 def collection(request):
@@ -11,11 +14,11 @@ def collection(request):
         collection_object_dict = OrderedDict()
         classification_list = list(Classification.objects.all().values_list('name', flat=True).order_by('name'))
         for classification in classification_list:
-            collection_object_dict[classification] = list(Collection.objects.filter(classification__name=classification).values('id', 'name', 'url', 'content'))
+            collection_object_dict[classification] = list(Collection.objects.filter(classification__name=classification).values('id', 'title'))
             for collection_object in collection_object_dict[classification]:
-                score_avg = Rate.objects.filter(collection__name=collection_object['name']).aggregate(Avg('score'))['score__avg']
+                score_avg = Rate.objects.filter(collection__id=collection_object['id']).aggregate(Avg('score'))['score__avg']
                 collection_object['score'] = score_avg if score_avg else 0
-                collection_object['score_count'] = Rate.objects.filter(collection__name=collection_object['name']).count()
+                collection_object['score_count'] = Rate.objects.filter(collection__id=collection_object['id']).count()
                 star_fill = round(collection_object['score'])
                 collection_object['star_fill'] = range(star_fill)
                 collection_object['star_empty'] = range(5 - star_fill)
@@ -27,12 +30,12 @@ def collection(request):
 def collection_details(request, id):
     if request.method == "GET":
         try:
-            collection_object = model_to_dict(Collection.objects.get(id=id), fields=['id', 'name', 'url', 'content'])
+            collection_object = model_to_dict(Collection.objects.get(id=id), fields=['id', 'title', 'content'])
         except:
             return render(request, "error_403.html", status=403)
-        score_avg = Rate.objects.filter(collection__name=collection_object['name']).aggregate(Avg('score'))['score__avg']
+        score_avg = Rate.objects.filter(collection__id=collection_object['id']).aggregate(Avg('score'))['score__avg']
         collection_object['score'] = score_avg if score_avg else 0
-        collection_object['score_count'] = Rate.objects.filter(collection__name=collection_object['name']).count()
+        collection_object['score_count'] = Rate.objects.filter(collection__id=collection_object['id']).count()
         star_fill = round(collection_object['score'])
         collection_object['star_fill'] = range(star_fill)
         collection_object['star_empty'] = range(5 - star_fill)
@@ -69,22 +72,15 @@ def rate(request):
             collection = Collection.objects.get(id=collection_id)
         except:
             return render(request, "error_500.html", status=500)
-        collection_object = model_to_dict(collection, fields=['id', 'name', 'url', 'content'])
-        score_avg = Rate.objects.filter(collection__name=collection_object['name']).aggregate(Avg('score'))['score__avg']
+        collection_object = model_to_dict(collection, fields=['id'])
+        score_avg = Rate.objects.filter(collection__id=collection_object['id']).aggregate(Avg('score'))['score__avg']
         collection_object['score'] = score_avg if score_avg else 0
-        collection_object['score_count'] = Rate.objects.filter(collection__name=collection_object['name']).count()
+        collection_object['score_count'] = Rate.objects.filter(collection__id=collection_object['id']).count()
         star_fill = round(collection_object['score'])
         collection_object['star_fill'] = range(star_fill)
         collection_object['star_empty'] = range(5 - star_fill)
         Rate.objects.create(collection=collection, user=request.user, score=score, content=content, ip=ip)
-        rate_object_list = list(Rate.objects.filter(collection=collection).values('id', 'user__username', 'score', 'content', 'create_datetime'))
-        for rate_object in rate_object_list:
-            rate_object['comment'] = list(Comment.objects.filter(rate__id=rate_object['id']).values('id', 'user__username', 'content', 'create_datetime'))
-        try:
-            rate_object_user = model_to_dict(Rate.objects.get(collection=collection, user=request.user), fields=['id', 'user__username', 'score', 'content', 'create_datetime'])
-        except:
-            rate_object_user = ''
-        return render(request, "collection_details.html", {'content': collection_object, 'rate_content': rate_object_list, 'rate_object_user': rate_object_user})
+        return redirect(reverse("collection:collection_details", args=[collection_id]))
     else:
         return render(request, "error_500.html", status=500)
 
@@ -101,22 +97,28 @@ def comment(request):
             rate = Rate.objects.get(id=rate_id)
         except:
             return render(request, "error_500.html", status=500)
-        collection_object = model_to_dict(rate.collection, fields=['id', 'name', 'url', 'content'])
-        score_avg = Rate.objects.filter(collection__name=collection_object['name']).aggregate(Avg('score'))['score__avg']
+        collection_object = model_to_dict(rate.collection, fields=['id'])
+        score_avg = Rate.objects.filter(collection__title=collection_object['title']).aggregate(Avg('score'))['score__avg']
         collection_object['score'] = score_avg if score_avg else 0
-        collection_object['score_count'] = Rate.objects.filter(collection__name=collection_object['name']).count()
+        collection_object['score_count'] = Rate.objects.filter(collection__title=collection_object['title']).count()
         star_fill = round(collection_object['score'])
         collection_object['star_fill'] = range(star_fill)
         collection_object['star_empty'] = range(5 - star_fill)
         Comment.objects.create(rate=rate, user=request.user, content=content, ip=ip)
-        rate_object_list = list(Rate.objects.filter(collection=rate.collection).values('id', 'user__username', 'score', 'content', 'create_datetime'))
-        for rate_object in rate_object_list:
-            rate_object['comment'] = list(Comment.objects.filter(rate__id=rate_object['id']).values('id', 'user__username', 'content', 'create_datetime'))
-        try:
-            rate_object_user = model_to_dict(Rate.objects.get(collection=rate.collection, user=request.user), fields=['id', 'user__username', 'score', 'content', 'create_datetime'])
-        except:
-            rate_object_user = ""
-        return render(request, "collection_details.html", {'content': collection_object, 'rate_content': rate_object_list, 'rate_object_user': rate_object_user})
+        return redirect(reverse("collection:collection_details", args=[collection_object['id']]))
     else:
         return render(request, "error_500.html", status=500)
 
+
+@check_bot
+@check_authority
+@check_agreement_signed(Agreement, AgreementSignRecord)
+def show_download(request):
+    collection_id = request.GET.get('collection_id', '')
+    try:
+        collection = Collection.objects.get(id=collection_id)
+    except:
+        return render(request, "error_403.html", status=403)
+    data = {"tab": False, "jump": "", "content": collection.hidden_content}
+    data = json.dumps(data)
+    return JsonResponse(data, safe=False)

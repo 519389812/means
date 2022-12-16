@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    {% include "head.html" %}
+    <title>论坛</title>
+</head>
+
+<body>
+
+<!-- Navigation -->
+{% include "navigation.html" %}
+
+<!-- Page Content -->
+<div class="container">
+
+    <!-- Page Heading/Breadcrumbs -->
+    <h1 class="mt-4 mb-3">论坛
+        <small>主页</small>
+    </h1>
+
+    <ol class="breadcrumb">
+        {% include "route.html" %}
+        {% include "route_bbs.html" %}
+        <li class="breadcrumb-item active">所有帖子</li>
+    </ol>
+
+    <div class="row">
+
+        <!-- Blog Entries Column -->
+        <div class="col-md-8">
+
+            <!-- Blog Post -->
+            {% for post in page_object_list %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title"><a href="{% url 'bbs:view_post' %}?post_id={{ post.id }}">{{ post.title }}</a></h4>
+                        <p class="card-text"></p>
+                    </div>
+                    <div class="card-footer text-muted">
+                        <footer class="blockquote-footer" style="text-align: right">
+                            <cite title="Source Title">
+                                <a href="#">{{ post.user.username }}</a>
+                                <span style="float: right">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发表于:<cite title="Source Title">{{ post.create_datetime }}</cite>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;更新于:<cite title="Source Title">{{ post.update_datetime }}</cite></span>
+                            </cite>
+                        </footer>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <!-- Pagination -->
+            <ul class="pagination justify-content-center">
+                <li class="page-item">
+                    <a class="page-link" href="{% url 'bbs:bbs' %}?page=1" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                        <span class="sr-only">首页</span>
+                    </a>
+                </li>
+                {% with ''|center:total_page_num as range %}
+                {% for _ in range %}
+                <li class="page-item">
+                    {% if page_num == forloop.counter %}
+                    <a class="page-link" href="{% url 'bbs:bbs' %}?page={{ page_num }}"
+                       style="pointer-events: none;cursor: default;color:gray;">{{ forloop.counter }}</a>
+                    {% else %}
+                    <a class="page-link" href="{% url 'bbs:bbs' %}?page={{ page_num }}">{{ forloop.counter }}</a>
+                    {% endif %}
+                </li>
+                {% endfor %}
+                {% endwith %}
+                <li class="page-item">
+                    <a class="page-link" href="{% url 'bbs:bbs' %}?page={{ total_page_num }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">尾页</span>
+                    </a>
+                </li>
+            </ul>
+
+        </div>
+
+        <!-- Sidebar Widgets Column -->
+        <div class="col-md-4">
+
+            <div class="col-lg-4 mb-4">
+                <h3>发帖</h3>
+                <p>
+                    <abbr title="发布">发布</abbr><a href="{% url 'bbs:add_post' %}">新帖</a>
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+    <!-- /.row -->
+
+</div>
+<!-- /.container -->
+
+<!-- Footer -->
+{% include "footer.html" %}
+
+<!-- Bootstrap core JavaScript -->
+{% include "script.html" %}
+
+</body>
+
+</html>

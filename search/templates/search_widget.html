@@ -12,7 +12,7 @@
 </ul>
 <div class="tab-content" id="myTabContent">
     <div class="tab-pane fade show active" name="cloud_disk" id="cloud_disk_div" role="tabpanel" aria-labelledby="cloud-disk-tab">
-        <form action="{% url 'search_pan' %}" method="post">
+        <form action="{% url 'search:search_pan' %}" method="post">
             {% csrf_token %}
             <div class="input-group">
                 <input type="text" class="form-control" id="cloud_disk" placeholder="请输入搜索内容..." name="search_string">
@@ -24,7 +24,7 @@
     </div>
 
     <div class="tab-pane fade" name="movie" id="movie_div" role="tabpanel" aria-labelledby="movie-tab">
-        <form action="{% url 'search_movie' %}" method="post">
+        <form action="{% url 'search:search_movie' %}" method="post">
             {% csrf_token %}
             <div class="input-group">
                 <input type="text" class="form-control" id="movie" placeholder="电影、电视剧..." name="search_string">

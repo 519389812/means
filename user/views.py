@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.http import HttpResponse
-from user.models import User, EmailVerifyRecord, Feedback
+from django.http import HttpResponse, JsonResponse
+from user.models import User, EmailVerifyRecord, Feedback, Agreement, AgreementSignRecord
 from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth import login as login_admin
 from django.contrib.auth import logout as logout_admin
@@ -16,13 +16,12 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.core.mail import send_mail
 from means.settings import EMAIL_HOST_USER
+from means.views import parse_next_url
 import datetime
-import user_agents
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.forms import model_to_dict
-
-
-
+from urllib import parse as urllib_parse
 from urllib.parse import urlparse
 import uuid
 # from django_apscheduler.jobstores import DjangoJobStore, register_events, register_job
@@ -30,10 +29,26 @@ import uuid
 from django.http import Http404
 
 
+def get_next_url(request):
+    next_url = request.GET.get('next', '')
+    if not next_url:
+        http_referer = request.META.get("HTTP_REFERER", '')
+        query_string = request.META.get("QUERY_STRING", '')
+        _, next_url, _ = parse_next_url(http_referer, query_string)
+    return next_url
+
+
 def check_authority(func):
     def wrapper(*args, **kwargs):
         if not args[0].user.is_authenticated:
-            return redirect("/login/?next=%s" % args[0].path)
+            # if "X-Requested_With" in args[0].headers:
+            #     return JsonResponse('请先登录', safe=False, json_dumps_params={'ensure_ascii': False})
+            _, next_url, query_string = parse_next_url(args[0].META.get("HTTP_REFERER", ''), args[0].META.get("QUERY_STRING", ''))
+            if query_string:
+                query_string = query_string + "&next=%s" % next_url
+            else:
+                query_string += "?next=%s" % next_url
+            return redirect(reverse('user:login') + query_string)
         return func(*args, **kwargs)
     return wrapper
 
@@ -47,16 +62,21 @@ def check_bot(func):
     return wrapper
 
 
+def check_is_superuser(func):
+    def wrapper(*args, **kwargs):
+        if not args[0].user.is_superuser:
+            if "X-Requested_With" in args[0].headers:
+                return JsonResponse('无权限访问', safe=False, json_dumps_params={'ensure_ascii': False})
+            return redirect(reverse('error_not_accessible'))
+        return func(*args, **kwargs)
+    return wrapper
+
+
 def check_frequent(model_object):
     def func_wrapper(func):
         def args_wrapper(*args, **kwargs):
-            if args[0].META.get('HTTP_X_FORWARDED_FOR'):
-                ip = args[0].META.get('HTTP_X_FORWARDED_FOR').split(',')[0]
-            else:
-                ip = args[0].META.get('REMOTE_ADDR').split(',')[0]
-            last_ip_object = model_object.objects.filter(ip=ip).last()
             last_user_object = model_object.objects.filter(user=args[0].user).last()
-            if not (last_ip_object is None or check_datetime_valid(timezone.localtime(last_ip_object.create_datetime), timezone.localtime(timezone.now()))) and not (last_user_object is None or check_datetime_valid(timezone.localtime(last_user_object.create_datetime), timezone.localtime(timezone.now()))):
+            if not (last_user_object is None or check_datetime_valid(timezone.localtime(last_user_object.create_datetime), timezone.localtime(timezone.now()))):
                 return render(args[0], "error_too_frequent.html")
             return func(*args, **kwargs)
         return args_wrapper
@@ -81,7 +101,7 @@ def check_is_touch_capable(func):
             if args[0].META.get("HTTP_REFERER"):
                 return redirect(args[0].META.get("HTTP_REFERER")+"请使用触屏设备签名")
             else:
-                return redirect("/")
+                return redirect(reverse('home'))
         return func(*args, **kwargs)
     return wrapper
 
@@ -93,7 +113,7 @@ def check_accessible(model_object):
             try:
                 obj = model_object.objects.get(id=args[1])
             except:
-                return redirect('/error_404')
+                return redirect(reverse('error_404'))
             if args[0].user.is_superuser:
                 return func(*args, **kwargs)
             accessible_team_id = list(obj.team.all().values_list("id", flat=True))
@@ -103,9 +123,86 @@ def check_accessible(model_object):
                 for team_id in accessible_team_id:
                     if team_id in json.loads(args[0].user.team.related_parent):
                         return func(*args, **kwargs)
-            return redirect('/error_not_accessible')
+            return redirect(reverse('error_not_accessible'))
         return args_wrapper
     return func_wrapper
+
+
+# get请求需要以?id=的形式传入id参数,post请求直接post id参数
+def check_author(model_object):
+    def func_wrapper(func):
+        def args_wrapper(*args, **kwargs):
+            method = args[0].method
+            _id = args[0].GET.get("id", "") if method == "GET" else args[0].POST.get("id", "")
+            if not _id:
+                return redirect(reverse('error_403'))
+            try:
+                obj = model_object.objects.get(id=_id)
+            except:
+                return redirect(reverse('error_404'))
+            if obj.user != args[0].user:
+                return redirect(reverse('error_not_accessible'))
+            return func(*args, **kwargs)
+        return args_wrapper
+    return func_wrapper
+
+
+def check_agreement_signed(agreement_model, agreement_sign_record_model):
+    def func_wrapper(func):
+        def args_wrapper(*args, **kwargs):
+            agreement_model_list = agreement_model.objects.filter(must_sign=True)
+            if agreement_model_list.count() > 0:
+                for agreement in agreement_model_list:
+                    if agreement_sign_record_model.objects.filter(agreement=agreement, user=args[0].user).count() == 0:
+                        _, next_url, query_string = parse_next_url(args[0].META.get("HTTP_REFERER", ''), args[0].META.get("QUERY_STRING", ''))
+                        if query_string:
+                            query_string = query_string + "&next=%s&agreement_id=%s" % (next_url, agreement.id)
+                        else:
+                            query_string += "?next=%s&agreement_id=%s" % (next_url, agreement.id)
+                        return redirect(reverse('user:get_agreement') + '%s' % query_string)
+            return func(*args, **kwargs)
+        return args_wrapper
+    return func_wrapper
+
+
+def get_agreement(request):
+    if request.method == "GET":
+        http_referer = request.META.get("HTTP_REFERER", '')
+        query_string = request.META.get("QUERY_STRING", '')
+        origin_url, next_url, query_string = parse_next_url(http_referer, query_string)
+        query_string = query_string + "&next=%s" % origin_url
+        data = {"tab": True, "jump": "%s%s" % (reverse('user:show_agreement'), query_string), "content": ""}
+        data = json.dumps(data)
+        return JsonResponse(data, safe=False)
+    else:
+        return render(request, "error_403.html")
+
+
+def show_agreement(request):
+    if request.method == "GET":
+        next_url = request.GET.get('next', '')
+        agreement_id = request.GET.get('agreement_id', '')
+        try:
+            agreement = Agreement.objects.get(id=agreement_id)
+        except:
+            return render(request, "error_500.html")
+        return render(request, "agreement.html", {'next': next_url, "agreement": agreement})
+    else:
+        return render(request, "error_403.html")
+
+
+def sign_agreement(request):
+    if request.method == "GET":
+        next_url = get_next_url(request)
+        agreement_id = request.GET.get('agreement_id', '')
+        try:
+            agreement = Agreement.objects.get(id=agreement_id)
+        except:
+            return render(request, "error_500.html")
+        AgreementSignRecord.objects.create(agreement=agreement, user=request.user)
+        return redirect(next_url)
+    else:
+        return render(request, "error_403.html")
 
 
 @check_authority
@@ -116,18 +213,23 @@ def user_setting(request):
 def register(request):
     if request.method == "POST":
         if not check_post_valudate(request, check_username_validate, check_password_validate, check_email_validate):
-            return render(request, "register.html", {"msg": "存在未按规定要求的字段！"})
+            return render(request, "register.html", {"msg": "存在未按要求填写的字段！"})
         username = request.POST.get("username")
         password = request.POST.get("password")
         email_address = request.POST.get("email_address")
         try:
-            User.objects.create(username=username, password=make_password(password), email=email_address)
-            return render(request, "register.html", {"msg": "注册成功，请等待管理员审核！"})
+            if request.META.get('HTTP_X_FORWARDED_FOR'):
+                ip = request.META.get('HTTP_X_FORWARDED_FOR').split(',')[0]
+            else:
+                ip = request.META.get('REMOTE_ADDR').split(',')[0]
+            user = User.objects.create(username=username, password=make_password(password), is_active=True, email=email_address, ip_address=ip)
+            login_admin(request, user)
+            return redirect(reverse('home'))
         except:
-            return render(request, "register.html", {"msg": "注册失败，出现未知错误，请联系管理员！"})
+            return render(request, "register.html", {"msg": "注册失败！"})
     else:
         if request.user.is_authenticated:
-            return redirect('/')
+            return redirect(reverse('home'))
         else:
             return render(request, "register.html")
 
@@ -139,29 +241,40 @@ def login(request):
         user = authenticate(username=username, password=password)
         if user:
             login_admin(request, user)
-            next_url = request.GET.get('next', '')
-            if next_url != "":
-                return redirect(next_url)
+            if request.META.get('HTTP_X_FORWARDED_FOR'):
+                ip = request.META.get('HTTP_X_FORWARDED_FOR').split(',')[0]
             else:
-                return redirect('/')
+                ip = request.META.get('REMOTE_ADDR').split(',')[0]
+            user.ip_address = ip
+            user.save()
+            next_url = request.GET.get('next', '')
+            try:
+                if next_url != '':
+                    return redirect(next_url)
+                else:
+                    return redirect(reverse('home'))
+            except:
+                return redirect(reverse('home'))
         else:
             try:
                 user = User.objects.get(username=username)
-                if check_password(password, user.password):
-                    if user.is_active:
-                        return render(request, "login.html", {"msg": "登录出错，请管理员！"})
-                    else:
-                        return render(request, "login.html", {"msg": "用户未认证，请联系管理员审核！"})
-                else:
-                    return render(request, "login.html", {"msg": "用户名或密码错误！"})
             except:
+                return render(request, "login.html", {"msg": "用户名或密码错误！"})
+            if check_password(password, user.password):
+                if user.is_active:
+                    return render(request, "login.html", {"msg": "登录出错！"})
+                else:
+                    return render(request, "login.html", {"msg": "该账号已被停用！"})
+            else:
                 return render(request, "login.html", {"msg": "用户名或密码错误！"})
     else:
         if request.user.is_authenticated:
-            return redirect('/')
+            return redirect(reverse('home'))
         else:
-            next_url = request.GET.get('next', '')
-            return render(request, "login.html", {'next': next_url})
+            http_referer = request.META.get("HTTP_REFERER", '')
+            query_string = request.META.get("QUERY_STRING", '')
+            _, next_url, query_string = parse_next_url(http_referer, query_string)
+            return render(request, "login.html", {'next': next_url + query_string})
 
 
 def check_datetime_valid(create_timezone, now_timezone, std_seconds=30):
@@ -324,7 +437,8 @@ def change_password(request):
 
 def logout(request):
     logout_admin(request)
-    return redirect('/')
+    messages.success(request, "登出成功！")
+    return redirect(reverse('user:login'))
 
 
 def check_username_validate(request):
@@ -372,16 +486,20 @@ def check_old_password_validate(request):
 
 
 def check_password_repeat_validate(request):
-    try:
-        password = request.GET["password_repeat"]
-    except MultiValueDictKeyError:
-        password = request.POST.get("password_repeat")
-    if password == "":
+    if request.method == 'GET':
+        password = request.GET.get('password')
+        password_repeat = request.GET.get('password_repeat')
+    else:
+        password = request.POST.get('password')
+        password_repeat = request.POST.get('password_repeat')
+    if password_repeat == '':
         return HttpResponse('密码不能为空')
-    if len(password) < 6 or len(password) > 16:
+    if len(password_repeat) < 6 or len(password_repeat) > 16:
         return HttpResponse('密码不能少于6个字符或超过16个字符')
-    if not re.search(r'^\S+$', password):
-        return HttpResponse("密码包含非法字符(‘ ’)")
+    if not re.search(r'^\S+$', password_repeat):
+        return HttpResponse('密码包含非法字符(‘ ’)')
+    if password != password_repeat:
+        return HttpResponse('输入密码不一致')
     return HttpResponse('')
 
 

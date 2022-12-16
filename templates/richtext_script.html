@@ -1,0 +1,19 @@
+{% load static %}
+{% load custom_tags %}
+<script src="{% static 'js/ckeditor.js' %}"></script>
+<script src="{% static 'js/ckeditor-translation-zh-cn.js' %}"></script>
+
+<script>
+	ClassicEditor
+		.create( document.querySelector( '#editor' ), {
+			// toolbar: [ 'heading', '|', 'bold', 'italic', 'link' ]
+			language: 'zh-cn',
+            initialData: '{% html_format post.content %}'
+		} )
+		.then( editor => {
+			window.editor = editor;
+		} )
+		.catch( err => {
+			console.error( err.stack );
+		} );
+</script>
