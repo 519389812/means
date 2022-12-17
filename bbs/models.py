@@ -3,10 +3,6 @@ from user.models import User
 from ckeditor.fields import RichTextField
 
 
-def default_post_type():
-    return Type.objects.get_or_create(name="普通")[0].id
-
-
 class Classification(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, verbose_name='板块名称')
@@ -29,6 +25,10 @@ class Type(models.Model):
 
     def __str__(self):
         return self.name
+
+
+def default_post_type():
+    return Type.objects.get_or_create(name="普通")[0].id
 
 
 class Post(models.Model):
