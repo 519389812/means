@@ -27,14 +27,18 @@ class Type(models.Model):
         return self.name
 
 
+# 加try防止首次migrations时没有建立表的错误
 def default_post_type():
-    return Type.objects.get_or_create(name="普通")[0].id
+    try:
+        return Type.objects.get_or_create(name="普通")[0].id
+    except:
+        return None
 
 
 class Post(models.Model):
     id = models.AutoField(primary_key=True)
     classification = models.ForeignKey(Classification, null=True, blank=True, on_delete=models.CASCADE, verbose_name="板块")
-    type = models.ForeignKey(Type, default=default_post_type(), on_delete=models.CASCADE, verbose_name="类别")
+    type = models.ForeignKey(Type, default=default_post_type(), null=True, blank=True, on_delete=models.CASCADE, verbose_name="类别")
     title = models.TextField(max_length=200, null=True, blank=True, verbose_name='标题')
     content = RichTextField(max_length=10000000, verbose_name='内容')
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='发送人')
