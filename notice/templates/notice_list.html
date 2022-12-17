@@ -49,18 +49,16 @@
                     </li>
                     {% for unread in unread_list %}
                         <li class="list-group-item" id="notice_link">
-                            <a href="{% url 'notice:mark_notice_as_read' %}?notice_id={{ unread.id }}">
-                                <span style="color: #5897fb;">{{ unread.actor }}&nbsp;&nbsp;</span>给您发了一条消息:&nbsp;&nbsp;{{ unread.verb }}。
-                            </a>
-                            <span style="float: right">{{ unread.timestamp|date:"Y/m/d H:i" }}</span>
+                            <span style="color: #5897fb;">{{ unread.actor }}&nbsp;&nbsp;</span>&nbsp;&nbsp;{{ unread.verb }}&nbsp;&nbsp;<a href="{% url 'notice:jump_to_target' %}?type=post&target_id={{ unread.target.id }}&action_id={{ unread.action_object.id }}">{{ unread.action_object.parent_post.content }}</a>
+                            <span style="float: right">{{ unread.timestamp|date:"Y/m/d H:i" }}&nbsp;&nbsp;<a type="button" href="{% url 'notice:mark_notice_as_read' %}?notice_id={{ unread.id }}"><span style="color: royalblue">标记已读</span></a></span>
                         </li>
                     {% endfor %}
                 </div>
                 <div class="tab-pane fade show" id="list-read" role="tabpanel" aria-labelledby="list-read-list">
                     {% for read in read_list %}
                         <li class="list-group-item" id="notice_link">
-                            <span style="color: #5897fb;">{{ read.actor }}&nbsp;&nbsp;</span>给您发了一条消息:&nbsp;&nbsp;{{ read.verb }}。
-                            <span style="text-align: right">{{ read.timestamp|date:"Y/m/d H:i" }}</span>
+                            <span style="color: #5897fb;">{{ read.actor }}&nbsp;&nbsp;</span>&nbsp;&nbsp;{{ read.verb }}&nbsp;&nbsp;<a href="{% url 'notice:jump_to_target' %}?type=post&target_id={{ read.target.id }}&action_id={{ read.action_object.id }}">{{ read.action_object.parent_post.content }}</a>
+                            <span style="float: right">{{ read.timestamp|date:"Y/m/d H:i" }}</span>
                         </li>
                     {% endfor %}
                 </div>

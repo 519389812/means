@@ -5,6 +5,7 @@ from bbs.models import Post, Classification
 from django.core.paginator import Paginator
 from means.views import create_related_tree, create_related_list
 from user.views import check_authority, check_frequent, check_author
+from notice.views import send_notifications
 
 
 def bbs(request):
@@ -24,15 +25,16 @@ def bbs(request):
 def view_post(request):
     if request.method == 'GET':
         post_id = request.GET.get('post_id', '')
+        comment_id = request.GET.get('comment_id', '')
         try:
             post = Post.objects.get(id=post_id)
         except:
             return render(request, 'error_403.html', status=403)
         related_post_list = Post.objects.filter(parent_post__isnull=False, related_post__iregex=r'\D%s\D' % post_id).order_by("create_datetime")
-        fields = "'id', 'content', 'user__username', 'create_datetime', 'parent_post', 'related_post'"
+        fields = "'id', 'content', 'user__username', 'create_datetime', 'parent_post__user__username', 'related_post'"
         # 将多级结构转成树形结构
         related_post_list = create_related_tree(related_post_list, fields, post.id, 'related_post', 'id', "create_datetime")
-        return render(request, 'view_post.html', {'post': post, 'related_post_list': related_post_list})
+        return render(request, 'view_post.html', {'post': post, 'related_post_list': related_post_list, "comment_id": comment_id})
     else:
         return render(request, 'error_400.html', status=400)
 
@@ -65,6 +67,7 @@ def add_comment(request):
         related_list = json.dumps(create_related_list(comment.id, comment.parent_post, "parent_post"))
         comment.related_post = related_list
         comment.save()
+        send_notifications(sender=request.user, recipient=comment.parent_post.user, verb="在论坛中评论了您的帖子", target=post, action_object=comment)
         # return redirect(reverse('bbs:view_post', kwargs={'post_id': post_id}))  # 传递url/参数值
         return redirect(reverse('bbs:view_post') + '?%s=%s' % ('post_id', post_id))  # 传递url?参数=参数值
     else:
@@ -85,7 +88,7 @@ def add_post(request):
         except:
             return render(request, 'error_403.html', status=403)
         post = Post.objects.create(classification=classification, title=title, content=content, user=request.user)
-        related_list = json.dumps(create_related_list(post.id, post.parent_post))
+        related_list = json.dumps(create_related_list(post.id, post.parent_post, "parent_post"))
         post.related_post = related_list
         post.save()
         return redirect(reverse('bbs:view_post') + "?post_id=%s" % post.id)
@@ -124,7 +127,7 @@ def edit_post(request):
         post.title = title
         post.content = content
         post.user = request.user
-        related_list = json.dumps(create_related_list(post.id, post.parent_post))
+        related_list = json.dumps(create_related_list(post.id, post.parent_post, "parent_post"))
         post.related_post = related_list
         post.save()
         return redirect(reverse('bbs:view_post') + "?post_id=%s" % post_id)

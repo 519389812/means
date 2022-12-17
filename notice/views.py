@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 from django.views import View
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -23,12 +23,14 @@ def send_notifications(sender, verb, recipient, target=None, description=None, *
     notify.send(sender=sender, recipient=recipient, verb=verb, target=target, description=description, **kwargs)
 
 
+@check_authority
 def show_notice(request):
     unread_list = request.user.notifications.unread()
     read_list = request.user.notifications.read()
     return render(request, "notice_list.html", {"read_list": read_list, "unread_list": unread_list})
 
 
+@check_authority
 def mark_notice_as_read(request):
     if request.method == "GET":
         # 获取未读消息
@@ -97,9 +99,25 @@ def send_notice(request):
         else:
             users = User.objects.all()
         if users:
+            content = "给您发了一条消息:" + content
             send_notifications(sender=request.user, recipient=users, verb=content, target=None, description=None)
             return render(request, 'send_notice.html', {"msg": "发送成功"})
         else:
             return render(request, 'send_notice.html', {"msg": "未找到发送目标"})
     else:
         return render(request, 'send_notice.html')
+
+
+@check_authority
+def jump_to_target(request):
+    _type = request.GET.get("type", "")
+    if not _type:
+        return render(request, "error_403.html", status=403)
+    if _type == "post":
+        target_id = request.GET.get("target_id", "")
+        action_id = request.GET.get("action_id", "")
+        if not all([target_id, action_id]):
+            return render(request, "error_403.html", status=403)
+        return redirect(reverse("bbs:view_post") + "?post_id=%s&comment_id=%s" % (target_id, action_id))
+    else:
+        return render(request, "error_404.html", status=404)

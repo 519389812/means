@@ -56,12 +56,21 @@
                 <div class="card-body">
                     <form action="{% url 'bbs:add_comment' %}" method="post">
                         {% csrf_token %}
-                        <input name="post_id" value="{{ post.id }}" hidden/>
-                        <input id="related_post_id" name="related_post_id" value="" hidden/>
-                        <div class="form-group">
-                            <textarea id="content" class="form-control" rows="3" name="content"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">提交</button>
+                        {% if request.user.is_authenticated == False %}
+                            <input name="post_id" value="{{ post.id }}" hidden/>
+                            <input id="related_post_id" name="related_post_id" value="" hidden/>
+                            <div class="form-group">
+                                <textarea id="content" class="form-control" rows="3" name="content" disabled>请先注册/登录</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary" disabled>提交</button>
+                        {% else %}
+                            <input name="post_id" value="{{ post.id }}" hidden/>
+                            <input id="related_post_id" name="related_post_id" value="" hidden/>
+                            <div class="form-group">
+                                <textarea id="content" class="form-control" rows="3" name="content"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">提交</button>
+                        {% endif %}
                     </form>
                 </div>
             </div>
@@ -70,22 +79,39 @@
                 <!-- Comment with nested comments -->
                 <div class="media mb-4">
                     <div class="media-body" id="comment">
-                        <h6 class="mt-0">{{ related_post.user__username }}</h6>
+                        <h6 class="mt-0" id="{{ related_post.id }}">{{ related_post.user__username }}</h6>
                         {{ related_post.content }}
-                        <span style="float: right"><a href="javascript:void(0);" type="button" id="reply_btn" style="text-align: right" onclick="set_reply_target('{{ related_post.user__username }}', {{ related_post.id }})">回复</a></span>
-                        {% if related_post.children|length > 0 %}
-                            {% for related_post_children in related_post.children %}
-                                <div class="media mt-4">
-                                    <div class="media-body">
-                                        <h6 class="mt-0">{{ related_post_children.user__username }}</h6>
-                                        {{ related_post_children.content }}
-                                    </div>
-                                </div>
-                            {% endfor %}
+                        {% if request.user.is_authenticated == False %}
+                            <span style="float: right"><a disabled type="button" id="reply_btn" style="text-align: right">回复(请先登录)</a></span>
+                        {% else %}
+                            <span style="float: right"><a href="javascript:void(0);" type="button" id="reply_btn" style="text-align: right" onclick="set_reply_target('{{ related_post.user__username }}', {{ related_post.id }})">回复</a></span>
                         {% endif %}
                         <footer class="blockquote-footer" style="text-align: right">
                             <cite title="Source Title">{{ related_post.create_datetime }}</cite>
                         </footer>
+                        {% if related_post.children|length > 0 %}
+                            {% for related_post_children in related_post.children %}
+                                <div class="card-body">
+                                    <div class="media mt-4">
+                                        <div class="media-body">
+                                            <h6 class="mt-0" id="{{ related_post_children.id }}">{{ related_post_children.user__username }}</h6>
+                                            {% if related_post_children.parent_post__user__username %}
+                                                回复{{ related_post_children.parent_post__user__username }}:&nbsp&nbsp
+                                            {% endif %}
+                                            {{ related_post_children.content }}
+                                            {% if request.user.is_authenticated == False %}
+                                                <span style="float: right"><a disabled type="button" id="reply_btn" style="text-align: right">回复(请先登录)</a></span>
+                                            {% else %}
+                                                <span style="float: right"><a href="javascript:void(0);" type="button" id="reply_btn" style="text-align: right" onclick="set_reply_target('{{ related_post_children.user__username }}', {{ related_post_children.id }})">回复</a></span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <footer class="blockquote-footer" style="text-align: right">
+                                        <cite title="Source Title">{{ related_post.create_datetime }}</cite>
+                                    </footer>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
                     </div>
                 </div>
             {% endfor %}
@@ -193,10 +219,11 @@
     });
 
     $(document).ready(function() {
-        var content = '';
-        $("#comment").append(
-
-        )
+        var comment_id = {{ comment_id }};
+        if (comment_id) {
+            var div_id = "#" + comment_id;
+            $('html,body').animate({ scrollTop: $(div_id).offset().top - 100 }, 500)
+        }
     })
 
 </script>
