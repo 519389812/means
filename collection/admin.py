@@ -15,6 +15,7 @@ class CollectionAdmin(admin.ModelAdmin):
     list_display = ('id', 'uuid', 'classification', 'title', 'update_datetime')
     search_fields = ('title', 'uuid')
     list_filter = ('classification',)
+    readonly_fields = ('id', 'uuid')
 
     def save_model(self, request, obj, form, change):
         if form.is_valid():
