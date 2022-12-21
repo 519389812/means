@@ -13,6 +13,7 @@ class TypeAdmin(admin.ModelAdmin):
 
 
 class PostAdmin(admin.ModelAdmin):
+    change_list_template = "admin/change_list_with_richtext.html"
     list_display = ('id', 'classification', 'type', 'title', 'user', "update_datetime", "parent_post", "related_post")
     search_fields = ('title', 'user')
     list_filter = ('classification', 'type')
