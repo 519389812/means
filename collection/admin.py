@@ -11,7 +11,7 @@ class ClassificationAdmin(admin.ModelAdmin):
 
 
 class CollectionAdmin(admin.ModelAdmin):
-    change_list_template = "admin/change_list_with_richtext.html"
+    # change_list_template = "admin/change_list_with_richtext.html"
     list_display = ('id', 'uuid', 'classification', 'title', 'update_datetime')
     search_fields = ('title', 'uuid')
     list_filter = ('classification',)
