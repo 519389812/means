@@ -19,12 +19,20 @@ import means.views as main_views
 from means.views import error_404, error_400, error_403, error_500
 import notifications.urls
 
+# ckeditor
+from django.views import static
+from django.conf import settings
+from django.conf.urls import url
+
 handler404 = error_404
 handler400 = error_400
 handler403 = error_403
 handler500 = error_500
 
 urlpatterns = [
+    # ckeditor
+    url(r'^static/(?P<path>.*)$', static.serve, {'document_root': settings.STATIC_ROOT}, name='static'),
+
     # main
     path('admin/', admin.site.urls),
     path('', main_views.home, name="home"),
