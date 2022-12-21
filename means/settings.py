@@ -250,7 +250,7 @@ CKEDITOR_CONFIGS = {
         'extraPlugins': ','.join(['codesnippet']),
     }
 }
-CKEDITOR_BASEPATH = "/collected_static/ckeditor/"
+CKEDITOR_BASEPATH = "/collected_static/ckeditor/ckeditor/"
 
 # nanoid
 CODE_STRING = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
