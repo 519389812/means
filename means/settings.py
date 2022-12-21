@@ -151,11 +151,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# 运行collectstatic后的文件夹
+STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static', 'means'),
-    os.path.join(BASE_DIR, 'collection', 'static', 'collection'),
-    os.path.join(BASE_DIR, 'search', 'static', 'search'),
-    os.path.join(BASE_DIR, 'notice', 'static', 'notice'),
+    # os.path.join(BASE_DIR, 'collection', 'static', 'collection'),
 ]
 
 AUTH_USER_MODEL = 'user.user'
@@ -228,7 +229,7 @@ CKEDITOR_CONFIGS = {
         # 编辑器宽度自适应
         'width': 'auto',
         'height': '140px',
-        # tab键转换空格数
+        # tab键转换空格数s
         'tabSpaces': 4,
         # 工具栏风格
         'toolbar': 'Custom',
@@ -249,6 +250,7 @@ CKEDITOR_CONFIGS = {
         'extraPlugins': ','.join(['codesnippet']),
     }
 }
+CKEDITOR_BASEPATH = "/collected_static/ckeditor/ckeditor"
 
 # nanoid
 CODE_STRING = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
