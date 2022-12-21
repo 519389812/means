@@ -35,7 +35,7 @@ SECRET_KEY = 'xz3t#m#8&vj^7zwhcr&b+cw*_l0lw=*^)e0*z82y^pzh-nep@g'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 online = False
-if 'means' in BASE_DIR.parts:
+if 'meansx' in BASE_DIR.parts:
     DEBUG = False
     ALLOWED_HOSTS = ['means.pythonanywhere.com', 'www.meanslab.com', 'meanslab.com']
     DATABASES = {
@@ -152,7 +152,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # 运行collectstatic后的文件夹
-STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
+# STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static', 'means'),
@@ -250,7 +250,7 @@ CKEDITOR_CONFIGS = {
         'extraPlugins': ','.join(['codesnippet']),
     }
 }
-CKEDITOR_BASEPATH = "/collected_static/ckeditor/ckeditor/"
+# CKEDITOR_BASEPATH = "/collected_static/ckeditor/ckeditor/"
 
 # nanoid
 CODE_STRING = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
