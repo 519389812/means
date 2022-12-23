@@ -35,7 +35,7 @@ SECRET_KEY = 'xz3t#m#8&vj^7zwhcr&b+cw*_l0lw=*^)e0*z82y^pzh-nep@g'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 online = False
-if 'means' in BASE_DIR.parts:
+if 'meansx' in BASE_DIR.parts:
     DEBUG = False
     ALLOWED_HOSTS = ['means.pythonanywhere.com', 'www.meanslab.com', 'meanslab.com']
     DATABASES = {

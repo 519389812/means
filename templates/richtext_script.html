@@ -8,7 +8,7 @@
 		.create( document.querySelector( '#editor' ), {
 			// toolbar: [ 'heading', '|', 'bold', 'italic', 'link' ]
 			language: 'zh-cn',
-            initialData: '{% html_format post.content %}'
+            initialData: '{{ post.content | safe }}'
 		} )
 		.then( editor => {
 			window.editor = editor;
