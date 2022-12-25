@@ -8,7 +8,8 @@
 		.create( document.querySelector( '#editor' ), {
 			// toolbar: [ 'heading', '|', 'bold', 'italic', 'link' ]
 			language: 'zh-cn',
-            initialData: '{{ post.content | safe }}'
+            // 用``数字1旁边的字符，来定义多行文本
+            initialData: `{{ post.content | safe }}`
 		} )
 		.then( editor => {
 			window.editor = editor;
